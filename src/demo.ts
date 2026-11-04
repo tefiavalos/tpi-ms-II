@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { GestorSolicitudes } from "./GestorSolicitudes";
+import { RepositorioJson } from "./repositorio/RepositorioJson";
 import {
   ejecutar,
   listadoDeBusqueda,
@@ -14,7 +15,7 @@ const ARCHIVO = "data/solicitudes.json";
 if (fs.existsSync(ARCHIVO)) fs.unlinkSync(ARCHIVO);
 fs.mkdirSync("data", { recursive: true });
 
-const gestor = new GestorSolicitudes(ARCHIVO);
+const gestor = new GestorSolicitudes(new RepositorioJson(ARCHIVO));
 
 function registrar(
   legajo: string,

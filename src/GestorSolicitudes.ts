@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import { Estudiante } from "./dominio/Estudiante";
 import { DatoInvalido, NoEncontrado } from "./dominio/errores";
 import { formatearFecha } from "./dominio/fechas";
@@ -10,6 +9,7 @@ import {
 } from "./dominio/reglas";
 import { Solicitud } from "./dominio/Solicitud";
 import type { Estado } from "./dominio/tipos";
+import type { RepositorioSolicitudes } from "./repositorio/RepositorioSolicitudes";
 import {
   validarDescripcion,
   validarEmail,
@@ -18,32 +18,12 @@ import {
 
 // Gestor de solicitudes academicas
 export class GestorSolicitudes {
-  solicitudes: Solicitud[] = [];
-  estudiantes: Estudiante[] = [];
-  archivo: string;
-  ultimoId: number = 0;
+  private readonly repositorio: RepositorioSolicitudes;
 
-  constructor(archivo: string) {
-    this.archivo = archivo;
-    this.cargar();
-  }
-
-  cargar() {
-    try {
-      const datos = JSON.parse(fs.readFileSync(this.archivo, "utf-8"));
-      this.solicitudes = datos.solicitudes.map((d) => new Solicitud(d));
-      this.estudiantes = datos.estudiantes.map((d) => new Estudiante(d));
-      this.ultimoId = datos.ultimoId;
-    } catch (e) {}
-  }
-
-  guardar() {
-    const datos = {
-      ultimoId: this.ultimoId,
-      estudiantes: this.estudiantes.map((e) => e.aDatos()),
-      solicitudes: this.solicitudes.map((s) => s.aDatos()),
-    };
-    fs.writeFileSync(this.archivo, JSON.stringify(datos, null, 2));
+  // Recibe el repositorio desde afuera (inyección de dependencias): el gestor
+  // no sabe si los datos se guardan en un archivo, en memoria o en otra fuente.
+  constructor(repositorio: RepositorioSolicitudes) {
+    this.repositorio = repositorio;
   }
 
   registrarSolicitud(
@@ -62,9 +42,8 @@ export class GestorSolicitudes {
       throw new DatoInvalido("tipo de solicitud invalido");
     }
     this.registrarEstudianteSiNoExiste(legajo, nombre, email);
-    this.ultimoId++;
     const solicitud = new Solicitud({
-      id: this.ultimoId,
+      id: this.repositorio.siguienteId(),
       legajo: legajo,
       tipo: tipo,
       descripcion: descripcion,
@@ -74,23 +53,20 @@ export class GestorSolicitudes {
       responsable: null,
       fechaCierre: null,
     });
-    this.solicitudes.push(solicitud);
-    this.guardar();
+    this.repositorio.guardar(solicitud);
     return solicitud;
   }
 
   registrarEstudianteSiNoExiste(legajo: string, nombre: string, email: string) {
-    if (this.buscarEstudiante(legajo) === undefined) {
-      this.estudiantes.push(new Estudiante({ legajo, nombre, email }));
+    if (this.repositorio.buscarEstudiante(legajo) === undefined) {
+      this.repositorio.guardarEstudiante(
+        new Estudiante({ legajo, nombre, email }),
+      );
     }
   }
 
-  buscarEstudiante(legajo: string) {
-    return this.estudiantes.find((estudiante) => estudiante.legajo === legajo);
-  }
-
   obtenerSolicitud(id: number): Solicitud {
-    const solicitud = this.solicitudes.find((s) => s.id === id);
+    const solicitud = this.repositorio.buscarPorId(id);
     if (solicitud === undefined) {
       throw new NoEncontrado(`no existe la solicitud #${id}`);
     }
@@ -99,12 +75,12 @@ export class GestorSolicitudes {
 
   actualizarEmail(legajo: string, email: string): Estudiante {
     validarEmail(email);
-    const estudiante = this.buscarEstudiante(legajo);
+    const estudiante = this.repositorio.buscarEstudiante(legajo);
     if (estudiante === undefined) {
       throw new NoEncontrado(`no existe el estudiante ${legajo}`);
     }
     estudiante.cambiarEmail(email);
-    this.guardar();
+    this.repositorio.guardarEstudiante(estudiante);
     return estudiante;
   }
 
@@ -112,14 +88,14 @@ export class GestorSolicitudes {
     const solicitud = this.obtenerSolicitud(id);
     const responsable = responsableDelArea(areaResponsable(solicitud.tipo));
     solicitud.asignarResponsable(responsable.nombre);
-    this.guardar();
+    this.repositorio.guardar(solicitud);
     return solicitud;
   }
 
   cambiarEstado(id: number, nuevoEstado: Estado, fecha: string): Solicitud {
     const solicitud = this.obtenerSolicitud(id);
     solicitud.cambiarEstado(nuevoEstado, fecha);
-    this.guardar();
+    this.repositorio.guardar(solicitud);
     return solicitud;
   }
 
@@ -130,13 +106,15 @@ export class GestorSolicitudes {
     desde: string,
     hasta: string,
   ): Solicitud[] {
-    return this.solicitudes.filter(
-      (solicitud) =>
-        (tipo === "" || solicitud.tipo === tipo) &&
-        (estado === "" || solicitud.estado === estado) &&
-        (prioridad === "" || solicitud.prioridad === prioridad) &&
-        this.estaEnRango(solicitud.fecha, desde, hasta),
-    );
+    return this.repositorio
+      .listar()
+      .filter(
+        (solicitud) =>
+          (tipo === "" || solicitud.tipo === tipo) &&
+          (estado === "" || solicitud.estado === estado) &&
+          (prioridad === "" || solicitud.prioridad === prioridad) &&
+          this.estaEnRango(solicitud.fecha, desde, hasta),
+      );
   }
 
   estaEnRango(fecha: string, desde: string, hasta: string) {
@@ -144,9 +122,9 @@ export class GestorSolicitudes {
   }
 
   generarReporte(fechaCorte: string, desde: string, hasta: string): string {
-    const delPeriodo = this.solicitudes.filter((solicitud) =>
-      this.estaEnRango(solicitud.fecha, desde, hasta),
-    );
+    const delPeriodo = this.repositorio
+      .listar()
+      .filter((solicitud) => this.estaEnRango(solicitud.fecha, desde, hasta));
     let texto = "===== REPORTE DE SOLICITUDES =====\n";
     texto += `Periodo: ${formatearFecha(desde)} al ${formatearFecha(hasta)}\n`;
     texto += `Total: ${delPeriodo.length}\n`;
