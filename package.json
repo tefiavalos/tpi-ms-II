@@ -4,6 +4,7 @@
   "description": "Sistema de Gestión de Solicitudes Académicas",
   "private": true,
   "scripts": {
+    "prebuild": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "build": "tsc -p tsconfig.json",
     "demo": "npm run --silent build && node dist/src/demo.js",
     "format": "prettier --write .",
