@@ -8,13 +8,33 @@ import {
   prioridadInicial,
 } from "./dominio/reglas";
 import { Solicitud } from "./dominio/Solicitud";
-import type { Estado } from "./dominio/tipos";
+import { RangoFechas } from "./dominio/RangoFechas";
+import type { Estado, Prioridad, TipoSolicitud } from "./dominio/tipos";
 import type { RepositorioSolicitudes } from "./repositorio/RepositorioSolicitudes";
 import {
   validarDescripcion,
   validarEmail,
   validarLegajo,
 } from "./dominio/validaciones";
+
+/** Datos que se ingresan para registrar una solicitud. */
+export interface NuevaSolicitud {
+  legajo: string;
+  nombre: string;
+  email: string;
+  tipo: string;
+  descripcion: string;
+  fecha: string;
+  urgente: boolean;
+}
+
+/** Criterios de búsqueda. Los que no se indican no filtran. */
+export interface FiltroSolicitudes {
+  tipo?: TipoSolicitud;
+  estado?: Estado;
+  prioridad?: Prioridad;
+  rango?: RangoFechas;
+}
 
 // Gestor de solicitudes academicas
 export class GestorSolicitudes {
@@ -26,29 +46,21 @@ export class GestorSolicitudes {
     this.repositorio = repositorio;
   }
 
-  registrarSolicitud(
-    legajo: string,
-    nombre: string,
-    email: string,
-    tipo: string,
-    descripcion: string,
-    fecha: string,
-    urgente: boolean,
-  ): Solicitud {
-    validarLegajo(legajo);
-    validarEmail(email);
-    validarDescripcion(descripcion);
-    if (!esTipoValido(tipo)) {
+  registrarSolicitud(datos: NuevaSolicitud): Solicitud {
+    validarLegajo(datos.legajo);
+    validarEmail(datos.email);
+    validarDescripcion(datos.descripcion);
+    if (!esTipoValido(datos.tipo)) {
       throw new DatoInvalido("tipo de solicitud invalido");
     }
-    this.registrarEstudianteSiNoExiste(legajo, nombre, email);
+    this.registrarEstudianteSiNoExiste(datos);
     const solicitud = new Solicitud({
       id: this.repositorio.siguienteId(),
-      legajo: legajo,
-      tipo: tipo,
-      descripcion: descripcion,
-      fecha: fecha,
-      prioridad: prioridadInicial(tipo, urgente),
+      legajo: datos.legajo,
+      tipo: datos.tipo,
+      descripcion: datos.descripcion,
+      fecha: datos.fecha,
+      prioridad: prioridadInicial(datos.tipo, datos.urgente),
       estado: "pendiente",
       responsable: null,
       fechaCierre: null,
@@ -57,8 +69,9 @@ export class GestorSolicitudes {
     return solicitud;
   }
 
-  registrarEstudianteSiNoExiste(legajo: string, nombre: string, email: string) {
-    if (this.repositorio.buscarEstudiante(legajo) === undefined) {
+  registrarEstudianteSiNoExiste(datos: NuevaSolicitud) {
+    if (this.repositorio.buscarEstudiante(datos.legajo) === undefined) {
+      const { legajo, nombre, email } = datos;
       this.repositorio.guardarEstudiante(
         new Estudiante({ legajo, nombre, email }),
       );
@@ -99,34 +112,27 @@ export class GestorSolicitudes {
     return solicitud;
   }
 
-  buscar(
-    tipo: string,
-    estado: string,
-    prioridad: string,
-    desde: string,
-    hasta: string,
-  ): Solicitud[] {
+  buscar(filtro: FiltroSolicitudes): Solicitud[] {
     return this.repositorio
       .listar()
-      .filter(
-        (solicitud) =>
-          (tipo === "" || solicitud.tipo === tipo) &&
-          (estado === "" || solicitud.estado === estado) &&
-          (prioridad === "" || solicitud.prioridad === prioridad) &&
-          this.estaEnRango(solicitud.fecha, desde, hasta),
-      );
+      .filter((solicitud) => this.cumpleFiltro(solicitud, filtro));
   }
 
-  estaEnRango(fecha: string, desde: string, hasta: string) {
-    return (desde === "" || fecha >= desde) && (hasta === "" || fecha <= hasta);
+  cumpleFiltro(solicitud: Solicitud, filtro: FiltroSolicitudes): boolean {
+    const coincide = <T>(valor: T, buscado?: T) =>
+      buscado === undefined || valor === buscado;
+    return (
+      coincide(solicitud.tipo, filtro.tipo) &&
+      coincide(solicitud.estado, filtro.estado) &&
+      coincide(solicitud.prioridad, filtro.prioridad) &&
+      (filtro.rango?.contiene(solicitud.fecha) ?? true)
+    );
   }
 
-  generarReporte(fechaCorte: string, desde: string, hasta: string): string {
-    const delPeriodo = this.repositorio
-      .listar()
-      .filter((solicitud) => this.estaEnRango(solicitud.fecha, desde, hasta));
+  generarReporte(fechaCorte: string, periodo: RangoFechas): string {
+    const delPeriodo = this.buscar({ rango: periodo });
     let texto = "===== REPORTE DE SOLICITUDES =====\n";
-    texto += `Periodo: ${formatearFecha(desde)} al ${formatearFecha(hasta)}\n`;
+    texto += `Periodo: ${periodo.toString()}\n`;
     texto += `Total: ${delPeriodo.length}\n`;
     texto += this.lineaPorEstado(delPeriodo);
     texto += this.lineasPorTipo(delPeriodo);
