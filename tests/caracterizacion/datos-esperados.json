@@ -1,0 +1,82 @@
+{
+  "ultimoId": 5,
+  "estudiantes": [
+    {
+      "legajo": "10001",
+      "nombre": "Ana Torres",
+      "email": "ana.torres@mail.com"
+    },
+    {
+      "legajo": "10002",
+      "nombre": "Bruno Díaz",
+      "email": "bruno.d@mail.com"
+    },
+    {
+      "legajo": "10003",
+      "nombre": "Carla Méndez",
+      "email": "carla.mendez@mail.com"
+    },
+    {
+      "legajo": "10004",
+      "nombre": "Diego Sosa",
+      "email": "diego.sosa@mail.com"
+    }
+  ],
+  "solicitudes": [
+    {
+      "id": 1,
+      "legajo": "10001",
+      "tipo": "certificado",
+      "descripcion": "Certificado de alumno regular",
+      "fecha": "2026-10-01",
+      "prioridad": "baja",
+      "estado": "resuelta",
+      "responsable": "Laura Gómez",
+      "fechaCierre": "2026-10-04"
+    },
+    {
+      "id": 2,
+      "legajo": "10002",
+      "tipo": "reclamo de nota",
+      "descripcion": "Revision del segundo parcial",
+      "fecha": "2026-10-05",
+      "prioridad": "alta",
+      "estado": "en curso",
+      "responsable": "Martín Ruiz",
+      "fechaCierre": null
+    },
+    {
+      "id": 3,
+      "legajo": "10003",
+      "tipo": "equivalencia",
+      "descripcion": "Equivalencia de Programacion I",
+      "fecha": "2026-10-10",
+      "prioridad": "alta",
+      "estado": "rechazada",
+      "responsable": null,
+      "fechaCierre": "2026-10-12"
+    },
+    {
+      "id": 4,
+      "legajo": "10001",
+      "tipo": "baja de materia",
+      "descripcion": "Baja de Base de Datos I",
+      "fecha": "2026-10-20",
+      "prioridad": "media",
+      "estado": "pendiente",
+      "responsable": null,
+      "fechaCierre": null
+    },
+    {
+      "id": 5,
+      "legajo": "10004",
+      "tipo": "certificado",
+      "descripcion": "Certificado de examen final",
+      "fecha": "2026-10-25",
+      "prioridad": "media",
+      "estado": "pendiente",
+      "responsable": null,
+      "fechaCierre": null
+    }
+  ]
+}
