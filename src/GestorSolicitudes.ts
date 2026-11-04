@@ -1,56 +1,25 @@
 import * as fs from "fs";
-import {
-  DatoInvalido,
-  NoEncontrado,
-  OperacionNoPermitida,
-} from "./dominio/errores";
-import { diasEntre, formatearFecha } from "./dominio/fechas";
+import { Estudiante } from "./dominio/Estudiante";
+import { DatoInvalido, NoEncontrado } from "./dominio/errores";
+import { formatearFecha } from "./dominio/fechas";
+import { responsableDelArea } from "./dominio/responsables";
 import {
   areaResponsable,
-  esEstadoFinal,
   esTipoValido,
   prioridadInicial,
-  transicionPermitida,
 } from "./dominio/reglas";
-import type { Area, Estado, Prioridad, TipoSolicitud } from "./dominio/tipos";
+import { Solicitud } from "./dominio/Solicitud";
+import type { Estado } from "./dominio/tipos";
 import {
   validarDescripcion,
   validarEmail,
   validarLegajo,
 } from "./dominio/validaciones";
 
-export interface DatosSolicitud {
-  id: number;
-  legajo: string;
-  tipo: TipoSolicitud;
-  descripcion: string;
-  fecha: string;
-  prioridad: Prioridad;
-  estado: Estado;
-  responsable: string | null;
-  fechaCierre: string | null;
-}
-
-export interface DatosEstudiante {
-  legajo: string;
-  nombre: string;
-  email: string;
-}
-
-export interface Responsable {
-  id: number;
-  nombre: string;
-  area: Area;
-}
-
 // Gestor de solicitudes academicas
 export class GestorSolicitudes {
-  solicitudes: DatosSolicitud[] = [];
-  estudiantes: DatosEstudiante[] = [];
-  responsables: Responsable[] = [
-    { id: 1, nombre: "Laura Gómez", area: "Alumnos" },
-    { id: 2, nombre: "Martín Ruiz", area: "Coordinación" },
-  ];
+  solicitudes: Solicitud[] = [];
+  estudiantes: Estudiante[] = [];
   archivo: string;
   ultimoId: number = 0;
 
@@ -62,8 +31,8 @@ export class GestorSolicitudes {
   cargar() {
     try {
       const datos = JSON.parse(fs.readFileSync(this.archivo, "utf-8"));
-      this.solicitudes = datos.solicitudes;
-      this.estudiantes = datos.estudiantes;
+      this.solicitudes = datos.solicitudes.map((d) => new Solicitud(d));
+      this.estudiantes = datos.estudiantes.map((d) => new Estudiante(d));
       this.ultimoId = datos.ultimoId;
     } catch (e) {}
   }
@@ -71,8 +40,8 @@ export class GestorSolicitudes {
   guardar() {
     const datos = {
       ultimoId: this.ultimoId,
-      estudiantes: this.estudiantes,
-      solicitudes: this.solicitudes,
+      estudiantes: this.estudiantes.map((e) => e.aDatos()),
+      solicitudes: this.solicitudes.map((s) => s.aDatos()),
     };
     fs.writeFileSync(this.archivo, JSON.stringify(datos, null, 2));
   }
@@ -85,7 +54,7 @@ export class GestorSolicitudes {
     descripcion: string,
     fecha: string,
     urgente: boolean,
-  ): DatosSolicitud {
+  ): Solicitud {
     validarLegajo(legajo);
     validarEmail(email);
     validarDescripcion(descripcion);
@@ -94,7 +63,7 @@ export class GestorSolicitudes {
     }
     this.registrarEstudianteSiNoExiste(legajo, nombre, email);
     this.ultimoId++;
-    const solicitud: DatosSolicitud = {
+    const solicitud = new Solicitud({
       id: this.ultimoId,
       legajo: legajo,
       tipo: tipo,
@@ -104,7 +73,7 @@ export class GestorSolicitudes {
       estado: "pendiente",
       responsable: null,
       fechaCierre: null,
-    };
+    });
     this.solicitudes.push(solicitud);
     this.guardar();
     return solicitud;
@@ -112,7 +81,7 @@ export class GestorSolicitudes {
 
   registrarEstudianteSiNoExiste(legajo: string, nombre: string, email: string) {
     if (this.buscarEstudiante(legajo) === undefined) {
-      this.estudiantes.push({ legajo: legajo, nombre: nombre, email: email });
+      this.estudiantes.push(new Estudiante({ legajo, nombre, email }));
     }
   }
 
@@ -120,7 +89,7 @@ export class GestorSolicitudes {
     return this.estudiantes.find((estudiante) => estudiante.legajo === legajo);
   }
 
-  obtenerSolicitud(id: number): DatosSolicitud {
+  obtenerSolicitud(id: number): Solicitud {
     const solicitud = this.solicitudes.find((s) => s.id === id);
     if (solicitud === undefined) {
       throw new NoEncontrado(`no existe la solicitud #${id}`);
@@ -128,47 +97,28 @@ export class GestorSolicitudes {
     return solicitud;
   }
 
-  actualizarEmail(legajo: string, email: string): DatosEstudiante {
+  actualizarEmail(legajo: string, email: string): Estudiante {
     validarEmail(email);
     const estudiante = this.buscarEstudiante(legajo);
     if (estudiante === undefined) {
       throw new NoEncontrado(`no existe el estudiante ${legajo}`);
     }
-    estudiante.email = email;
+    estudiante.cambiarEmail(email);
     this.guardar();
     return estudiante;
   }
 
-  asignarResponsable(id: number): DatosSolicitud {
+  asignarResponsable(id: number): Solicitud {
     const solicitud = this.obtenerSolicitud(id);
-    if (esEstadoFinal(solicitud.estado)) {
-      throw new OperacionNoPermitida(`la solicitud #${id} ya esta cerrada`);
-    }
-    const area = areaResponsable(solicitud.tipo);
-    const responsable = this.responsables.find((r) => r.area === area);
-    solicitud.responsable = responsable.nombre;
+    const responsable = responsableDelArea(areaResponsable(solicitud.tipo));
+    solicitud.asignarResponsable(responsable.nombre);
     this.guardar();
     return solicitud;
   }
 
-  cambiarEstado(
-    id: number,
-    nuevoEstado: Estado,
-    fecha: string,
-  ): DatosSolicitud {
+  cambiarEstado(id: number, nuevoEstado: Estado, fecha: string): Solicitud {
     const solicitud = this.obtenerSolicitud(id);
-    if (!transicionPermitida(solicitud.estado, nuevoEstado)) {
-      throw new OperacionNoPermitida(
-        `no se puede pasar de ${solicitud.estado} a ${nuevoEstado}`,
-      );
-    }
-    if (nuevoEstado === "en curso" && solicitud.responsable === null) {
-      throw new OperacionNoPermitida(
-        `la solicitud #${id} no tiene responsable asignado`,
-      );
-    }
-    solicitud.estado = nuevoEstado;
-    if (esEstadoFinal(nuevoEstado)) solicitud.fechaCierre = fecha;
+    solicitud.cambiarEstado(nuevoEstado, fecha);
     this.guardar();
     return solicitud;
   }
@@ -179,7 +129,7 @@ export class GestorSolicitudes {
     prioridad: string,
     desde: string,
     hasta: string,
-  ): DatosSolicitud[] {
+  ): Solicitud[] {
     return this.solicitudes.filter(
       (solicitud) =>
         (tipo === "" || solicitud.tipo === tipo) &&
@@ -191,10 +141,6 @@ export class GestorSolicitudes {
 
   estaEnRango(fecha: string, desde: string, hasta: string) {
     return (desde === "" || fecha >= desde) && (hasta === "" || fecha <= hasta);
-  }
-
-  calcularDias(solicitud: DatosSolicitud, fechaCorte: string) {
-    return diasEntre(solicitud.fecha, solicitud.fechaCierre ?? fechaCorte);
   }
 
   generarReporte(fechaCorte: string, desde: string, hasta: string): string {
@@ -212,7 +158,7 @@ export class GestorSolicitudes {
     return texto;
   }
 
-  lineaPorEstado(solicitudes: DatosSolicitud[]) {
+  lineaPorEstado(solicitudes: Solicitud[]) {
     const contar = (estado: Estado) =>
       solicitudes.filter((solicitud) => solicitud.estado === estado).length;
     return (
@@ -221,7 +167,7 @@ export class GestorSolicitudes {
     );
   }
 
-  lineasPorTipo(solicitudes: DatosSolicitud[]) {
+  lineasPorTipo(solicitudes: Solicitud[]) {
     const cantidadPorTipo = new Map<string, number>();
     for (const solicitud of solicitudes) {
       const cantidad = cantidadPorTipo.get(solicitud.tipo) ?? 0;
@@ -234,28 +180,27 @@ export class GestorSolicitudes {
     return texto;
   }
 
-  lineaPromedioCierre(solicitudes: DatosSolicitud[], fechaCorte: string) {
-    const cerradas = solicitudes.filter((s) => esEstadoFinal(s.estado));
+  lineaPromedioCierre(solicitudes: Solicitud[], fechaCorte: string) {
+    const cerradas = solicitudes.filter((s) => s.estaCerrada());
     if (cerradas.length === 0) {
       return "Promedio de dias hasta el cierre: sin datos\n";
     }
     const totalDias = cerradas.reduce(
-      (suma, solicitud) => suma + this.calcularDias(solicitud, fechaCorte),
+      (suma, solicitud) => suma + solicitud.diasAbierta(fechaCorte),
       0,
     );
     const promedio = (totalDias / cerradas.length).toFixed(1);
     return `Promedio de dias hasta el cierre: ${promedio}\n`;
   }
 
-  lineasDemoradas(solicitudes: DatosSolicitud[], fechaCorte: string) {
+  lineasDemoradas(solicitudes: Solicitud[], fechaCorte: string) {
     const demoradas = solicitudes.filter(
       (solicitud) =>
-        !esEstadoFinal(solicitud.estado) &&
-        this.calcularDias(solicitud, fechaCorte) > 7,
+        !solicitud.estaCerrada() && solicitud.diasAbierta(fechaCorte) > 7,
     );
     let texto = `Solicitudes demoradas (mas de 7 dias abiertas): ${demoradas.length}\n`;
     for (const solicitud of demoradas) {
-      const dias = this.calcularDias(solicitud, fechaCorte);
+      const dias = solicitud.diasAbierta(fechaCorte);
       texto += `  #${solicitud.id} | ${formatearFecha(solicitud.fecha)} | ${solicitud.tipo} | ${dias} dias\n`;
     }
     return texto;

@@ -1,7 +1,8 @@
 // Capa de presentación por consola: arma los textos que ve el usuario.
 // La lógica del sistema no escribe en pantalla; solo devuelve datos o
 // lanza errores, y esta capa decide cómo mostrarlos.
-import type { DatosEstudiante, DatosSolicitud } from "../GestorSolicitudes";
+import type { Estudiante } from "../dominio/Estudiante";
+import type { Solicitud } from "../dominio/Solicitud";
 import { ErrorDeSolicitud } from "../dominio/errores";
 import { formatearFecha } from "../dominio/fechas";
 import { areaResponsable } from "../dominio/reglas";
@@ -20,24 +21,24 @@ export function ejecutar(accion: () => string): void {
   }
 }
 
-export function mensajeRegistro(solicitud: DatosSolicitud): string {
+export function mensajeRegistro(solicitud: Solicitud): string {
   return `Solicitud #${solicitud.id} registrada: ${solicitud.tipo} (prioridad ${solicitud.prioridad})`;
 }
 
-export function mensajeAsignacion(solicitud: DatosSolicitud): string {
+export function mensajeAsignacion(solicitud: Solicitud): string {
   const area = areaResponsable(solicitud.tipo);
   return `Solicitud #${solicitud.id} asignada a ${solicitud.responsable} (${area})`;
 }
 
-export function mensajeCambioDeEstado(solicitud: DatosSolicitud): string {
+export function mensajeCambioDeEstado(solicitud: Solicitud): string {
   return `Solicitud #${solicitud.id} ahora esta ${solicitud.estado}`;
 }
 
-export function mensajeEmailActualizado(estudiante: DatosEstudiante): string {
+export function mensajeEmailActualizado(estudiante: Estudiante): string {
   return `Email actualizado para el legajo ${estudiante.legajo}`;
 }
 
-export function listadoDeBusqueda(resultados: DatosSolicitud[]): string {
+export function listadoDeBusqueda(resultados: Solicitud[]): string {
   const filas = resultados.map(
     (s) =>
       `  #${s.id} | ${formatearFecha(s.fecha)} | ${s.tipo} | ${s.prioridad} | ${s.estado}`,
