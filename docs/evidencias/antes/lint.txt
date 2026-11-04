@@ -1,0 +1,89 @@
+$ npm run lint
+
+src/GestorSolicitudes.ts
+   25:17  error  Empty block statement                                                          no-empty
+   33:3   error  Method 'registrarSolicitud' has too many parameters (7). Maximum allowed is 4  max-params
+   33:3   error  Method 'registrarSolicitud' has too many lines (55). Maximum allowed is 40     max-lines-per-function
+   33:3   error  Method 'registrarSolicitud' has a complexity of 15. Maximum allowed is 8       complexity
+   34:16  error  Expected '===' and instead saw '=='                                            eqeqeq
+   34:39  error  Expected '!==' and instead saw '!='                                            eqeqeq
+   35:7   error  Unexpected console statement                                                   no-console
+   38:28  error  Expected '===' and instead saw '=='                                            eqeqeq
+   38:56  error  Expected '===' and instead saw '=='                                            eqeqeq
+   39:7   error  Unexpected console statement                                                   no-console
+   43:7   error  Unexpected console statement                                                   no-console
+   47:14  error  Expected '===' and instead saw '=='                                            eqeqeq
+   49:21  error  Expected '===' and instead saw '=='                                            eqeqeq
+   51:21  error  Expected '===' and instead saw '=='                                            eqeqeq
+   53:21  error  Expected '===' and instead saw '=='                                            eqeqeq
+   56:7   error  Unexpected console statement                                                   no-console
+   59:17  error  Expected '===' and instead saw '=='                                            eqeqeq
+   60:13  error  Expected '===' and instead saw '=='                                            eqeqeq
+   65:38  error  Expected '===' and instead saw '=='                                            eqeqeq
+   67:13  error  Expected '===' and instead saw '=='                                            eqeqeq
+   85:5   error  Unexpected console statement                                                   no-console
+   90:28  error  Expected '===' and instead saw '=='                                            eqeqeq
+   90:56  error  Expected '===' and instead saw '=='                                            eqeqeq
+   91:7   error  Unexpected console statement                                                   no-console
+   96:38  error  Expected '===' and instead saw '=='                                            eqeqeq
+   98:13  error  Expected '===' and instead saw '=='                                            eqeqeq
+   99:7   error  Unexpected console statement                                                   no-console
+  104:5   error  Unexpected console statement                                                   no-console
+  108:3   error  Method 'asignarResponsable' has a complexity of 12. Maximum allowed is 8       complexity
+  111:26  error  Expected '===' and instead saw '=='                                            eqeqeq
+  113:11  error  Expected '===' and instead saw '=='                                            eqeqeq
+  114:7   error  Unexpected console statement                                                   no-console
+  117:18  error  Expected '===' and instead saw '=='                                            eqeqeq
+  117:44  error  Expected '===' and instead saw '=='                                            eqeqeq
+  118:7   error  Unexpected console statement                                                   no-console
+  122:16  error  Expected '===' and instead saw '=='                                            eqeqeq
+  123:21  error  Expected '===' and instead saw '=='                                            eqeqeq
+  124:21  error  Expected '===' and instead saw '=='                                            eqeqeq
+  125:21  error  Expected '===' and instead saw '=='                                            eqeqeq
+  128:37  error  Expected '===' and instead saw '=='                                            eqeqeq
+  132:5   error  Unexpected console statement                                                   no-console
+  136:3   error  Method 'cambiarEstado' has a complexity of 15. Maximum allowed is 8            complexity
+  139:26  error  Expected '===' and instead saw '=='                                            eqeqeq
+  141:11  error  Expected '===' and instead saw '=='                                            eqeqeq
+  142:7   error  Unexpected console statement                                                   no-console
+  146:18  error  Expected '===' and instead saw '=='                                            eqeqeq
+  147:17  error  Expected '===' and instead saw '=='                                            eqeqeq
+  147:40  error  Expected '===' and instead saw '=='                                            eqeqeq
+  148:25  error  Expected '===' and instead saw '=='                                            eqeqeq
+  149:17  error  Expected '===' and instead saw '=='                                            eqeqeq
+  149:40  error  Expected '===' and instead saw '=='                                            eqeqeq
+  152:7   error  Unexpected console statement                                                   no-console
+  155:15  error  Expected '===' and instead saw '=='                                            eqeqeq
+  155:46  error  Expected '===' and instead saw '=='                                            eqeqeq
+  156:7   error  Unexpected console statement                                                   no-console
+  160:15  error  Expected '===' and instead saw '=='                                            eqeqeq
+  160:38  error  Expected '===' and instead saw '=='                                            eqeqeq
+  162:5   error  Unexpected console statement                                                   no-console
+  166:3   error  Method 'buscar' has too many parameters (5). Maximum allowed is 4              max-params
+  166:3   error  Method 'buscar' has a complexity of 13. Maximum allowed is 8                   complexity
+  170:16  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  170:32  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  171:18  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  171:36  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  172:21  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  172:42  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  173:17  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  174:17  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  177:5   error  Unexpected console statement                                                   no-console
+  180:7   error  Unexpected console statement                                                   no-console
+  186:31  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  192:3   error  Method 'generarReporte' has too many lines (48). Maximum allowed is 40         max-lines-per-function
+  192:3   error  Method 'generarReporte' has a complexity of 17. Maximum allowed is 8           complexity
+  204:17  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  205:17  error  Expected '!==' and instead saw '!='                                            eqeqeq
+  207:20  error  Expected '===' and instead saw '=='                                            eqeqeq
+  208:25  error  Expected '===' and instead saw '=='                                            eqeqeq
+  209:25  error  Expected '===' and instead saw '=='                                            eqeqeq
+  210:25  error  Expected '===' and instead saw '=='                                            eqeqeq
+  211:27  error  Expected '===' and instead saw '=='                                            eqeqeq
+  213:20  error  Expected '===' and instead saw '=='                                            eqeqeq
+  213:46  error  Expected '===' and instead saw '=='                                            eqeqeq
+  237:5   error  Unexpected console statement                                                   no-console
+
+✖ 83 problems (83 errors, 0 warnings)
+

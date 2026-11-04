@@ -1,0 +1,5 @@
+$ npm run format:check
+Checking formatting...
+[warn] src/demo.ts
+[warn] src/GestorSolicitudes.ts
+[warn] Code style issues found in 2 files. Run Prettier with --write to fix.
