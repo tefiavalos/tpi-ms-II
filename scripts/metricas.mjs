@@ -48,12 +48,12 @@ for (const archivo of await eslint.lintFiles([carpeta])) {
   }
 }
 
-console.log("Función".padEnd(62) + "Líneas  Complejidad  Parámetros");
+console.log("Función".padEnd(72) + "Líneas  Complejidad  Parámetros");
 for (const [clave, f] of metricas) {
   // Se omiten los inicializadores de campos y las funciones flecha internas.
   if (f.lineas === 0 || clave.includes("Arrow function")) continue;
   console.log(
-    clave.padEnd(62) +
+    clave.padEnd(72) +
       String(f.lineas).padStart(6) +
       String(f.complejidad).padStart(13) +
       String(f.parametros).padStart(12),
