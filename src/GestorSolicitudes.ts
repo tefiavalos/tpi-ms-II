@@ -1,20 +1,53 @@
 import * as fs from "fs";
 import {
+  DatoInvalido,
+  NoEncontrado,
+  OperacionNoPermitida,
+} from "./dominio/errores";
+import { diasEntre, formatearFecha } from "./dominio/fechas";
+import {
   areaResponsable,
   esEstadoFinal,
   esTipoValido,
   prioridadInicial,
   transicionPermitida,
 } from "./dominio/reglas";
-import type { Estado } from "./dominio/tipos";
+import type { Area, Estado, Prioridad, TipoSolicitud } from "./dominio/tipos";
+import {
+  validarDescripcion,
+  validarEmail,
+  validarLegajo,
+} from "./dominio/validaciones";
 
-const MS_POR_DIA = 86400000;
+export interface DatosSolicitud {
+  id: number;
+  legajo: string;
+  tipo: TipoSolicitud;
+  descripcion: string;
+  fecha: string;
+  prioridad: Prioridad;
+  estado: Estado;
+  responsable: string | null;
+  fechaCierre: string | null;
+}
+
+export interface DatosEstudiante {
+  legajo: string;
+  nombre: string;
+  email: string;
+}
+
+export interface Responsable {
+  id: number;
+  nombre: string;
+  area: Area;
+}
 
 // Gestor de solicitudes academicas
 export class GestorSolicitudes {
-  solicitudes: any[] = [];
-  estudiantes: any[] = [];
-  responsables: any[] = [
+  solicitudes: DatosSolicitud[] = [];
+  estudiantes: DatosEstudiante[] = [];
+  responsables: Responsable[] = [
     { id: 1, nombre: "Laura Gómez", area: "Alumnos" },
     { id: 2, nombre: "Martín Ruiz", area: "Coordinación" },
   ];
@@ -52,58 +85,29 @@ export class GestorSolicitudes {
     descripcion: string,
     fecha: string,
     urgente: boolean,
-  ) {
-    if (!this.datosValidos(legajo, email, descripcion)) return -1;
+  ): DatosSolicitud {
+    validarLegajo(legajo);
+    validarEmail(email);
+    validarDescripcion(descripcion);
     if (!esTipoValido(tipo)) {
-      console.log("Error: tipo de solicitud invalido");
-      return -1;
+      throw new DatoInvalido("tipo de solicitud invalido");
     }
-    const prioridad = prioridadInicial(tipo, urgente);
     this.registrarEstudianteSiNoExiste(legajo, nombre, email);
     this.ultimoId++;
-    const solicitud = {
+    const solicitud: DatosSolicitud = {
       id: this.ultimoId,
       legajo: legajo,
       tipo: tipo,
       descripcion: descripcion,
       fecha: fecha,
-      prioridad: prioridad,
+      prioridad: prioridadInicial(tipo, urgente),
       estado: "pendiente",
       responsable: null,
       fechaCierre: null,
     };
     this.solicitudes.push(solicitud);
     this.guardar();
-    console.log(
-      "Solicitud #" +
-        solicitud.id +
-        " registrada: " +
-        tipo +
-        " (prioridad " +
-        prioridad +
-        ")",
-    );
-    return solicitud.id;
-  }
-
-  datosValidos(legajo: string, email: string, descripcion: string) {
-    if (legajo.length !== 5) {
-      console.log("Error: legajo invalido");
-      return false;
-    }
-    if (!this.emailValido(email)) {
-      console.log("Error: email invalido");
-      return false;
-    }
-    if (descripcion.length < 10) {
-      console.log("Error: la descripcion es muy corta");
-      return false;
-    }
-    return true;
-  }
-
-  emailValido(email: string) {
-    return email.includes("@") && email.includes(".");
+    return solicitud;
   }
 
   registrarEstudianteSiNoExiste(legajo: string, nombre: string, email: string) {
@@ -116,75 +120,57 @@ export class GestorSolicitudes {
     return this.estudiantes.find((estudiante) => estudiante.legajo === legajo);
   }
 
-  buscarSolicitud(id: number) {
-    return this.solicitudes.find((solicitud) => solicitud.id === id);
+  obtenerSolicitud(id: number): DatosSolicitud {
+    const solicitud = this.solicitudes.find((s) => s.id === id);
+    if (solicitud === undefined) {
+      throw new NoEncontrado(`no existe la solicitud #${id}`);
+    }
+    return solicitud;
   }
 
-  actualizarEmail(legajo: string, email: string) {
-    if (!this.emailValido(email)) {
-      console.log("Error: email invalido");
-      return false;
-    }
+  actualizarEmail(legajo: string, email: string): DatosEstudiante {
+    validarEmail(email);
     const estudiante = this.buscarEstudiante(legajo);
     if (estudiante === undefined) {
-      console.log("Error: no existe el estudiante " + legajo);
-      return false;
+      throw new NoEncontrado(`no existe el estudiante ${legajo}`);
     }
     estudiante.email = email;
     this.guardar();
-    console.log("Email actualizado para el legajo " + legajo);
-    return true;
+    return estudiante;
   }
 
-  asignarResponsable(id: number) {
-    const solicitud = this.buscarSolicitud(id);
-    if (solicitud === undefined) {
-      console.log("Error: no existe la solicitud #" + id);
-      return false;
-    }
+  asignarResponsable(id: number): DatosSolicitud {
+    const solicitud = this.obtenerSolicitud(id);
     if (esEstadoFinal(solicitud.estado)) {
-      console.log("Error: la solicitud #" + id + " ya esta cerrada");
-      return false;
+      throw new OperacionNoPermitida(`la solicitud #${id} ya esta cerrada`);
     }
     const area = areaResponsable(solicitud.tipo);
     const responsable = this.responsables.find((r) => r.area === area);
     solicitud.responsable = responsable.nombre;
     this.guardar();
-    console.log(
-      "Solicitud #" +
-        id +
-        " asignada a " +
-        responsable.nombre +
-        " (" +
-        area +
-        ")",
-    );
-    return true;
+    return solicitud;
   }
 
-  cambiarEstado(id: number, nuevoEstado: Estado, fecha: string) {
-    const solicitud = this.buscarSolicitud(id);
-    if (solicitud === undefined) {
-      console.log("Error: no existe la solicitud #" + id);
-      return false;
-    }
+  cambiarEstado(
+    id: number,
+    nuevoEstado: Estado,
+    fecha: string,
+  ): DatosSolicitud {
+    const solicitud = this.obtenerSolicitud(id);
     if (!transicionPermitida(solicitud.estado, nuevoEstado)) {
-      console.log(
-        "Error: no se puede pasar de " + solicitud.estado + " a " + nuevoEstado,
+      throw new OperacionNoPermitida(
+        `no se puede pasar de ${solicitud.estado} a ${nuevoEstado}`,
       );
-      return false;
     }
     if (nuevoEstado === "en curso" && solicitud.responsable === null) {
-      console.log(
-        "Error: la solicitud #" + id + " no tiene responsable asignado",
+      throw new OperacionNoPermitida(
+        `la solicitud #${id} no tiene responsable asignado`,
       );
-      return false;
     }
     solicitud.estado = nuevoEstado;
-    if (esEstadoFinal(solicitud.estado)) solicitud.fechaCierre = fecha;
+    if (esEstadoFinal(nuevoEstado)) solicitud.fechaCierre = fecha;
     this.guardar();
-    console.log("Solicitud #" + id + " ahora esta " + nuevoEstado);
-    return true;
+    return solicitud;
   }
 
   buscar(
@@ -193,106 +179,63 @@ export class GestorSolicitudes {
     prioridad: string,
     desde: string,
     hasta: string,
-  ) {
-    const resultados = this.solicitudes.filter(
+  ): DatosSolicitud[] {
+    return this.solicitudes.filter(
       (solicitud) =>
         (tipo === "" || solicitud.tipo === tipo) &&
         (estado === "" || solicitud.estado === estado) &&
         (prioridad === "" || solicitud.prioridad === prioridad) &&
         this.estaEnRango(solicitud.fecha, desde, hasta),
     );
-    console.log("Resultados de la busqueda: " + resultados.length);
-    for (const solicitud of resultados) {
-      console.log(
-        "  #" +
-          solicitud.id +
-          " | " +
-          this.formatearFecha(solicitud.fecha) +
-          " | " +
-          solicitud.tipo +
-          " | " +
-          solicitud.prioridad +
-          " | " +
-          solicitud.estado,
-      );
-    }
-    return resultados;
   }
 
   estaEnRango(fecha: string, desde: string, hasta: string) {
     return (desde === "" || fecha >= desde) && (hasta === "" || fecha <= hasta);
   }
 
-  formatearFecha(fechaIso: string) {
-    const [anio, mes, dia] = fechaIso.split("-");
-    return dia + "/" + mes + "/" + anio;
+  calcularDias(solicitud: DatosSolicitud, fechaCorte: string) {
+    return diasEntre(solicitud.fecha, solicitud.fechaCierre ?? fechaCorte);
   }
 
-  calcularDias(solicitud: any, fechaCorte: string) {
-    const fin =
-      solicitud.fechaCierre !== null ? solicitud.fechaCierre : fechaCorte;
-    const inicio = new Date(solicitud.fecha);
-    return Math.round(
-      (new Date(fin).getTime() - inicio.getTime()) / MS_POR_DIA,
-    );
-  }
-
-  generarReporte(fechaCorte: string, desde: string, hasta: string) {
+  generarReporte(fechaCorte: string, desde: string, hasta: string): string {
     const delPeriodo = this.solicitudes.filter((solicitud) =>
       this.estaEnRango(solicitud.fecha, desde, hasta),
     );
     let texto = "===== REPORTE DE SOLICITUDES =====\n";
-    texto +=
-      "Periodo: " +
-      this.formatearFecha(desde) +
-      " al " +
-      this.formatearFecha(hasta) +
-      "\n";
-    texto += "Total: " + delPeriodo.length + "\n";
+    texto += `Periodo: ${formatearFecha(desde)} al ${formatearFecha(hasta)}\n`;
+    texto += `Total: ${delPeriodo.length}\n`;
     texto += this.lineaPorEstado(delPeriodo);
     texto += this.lineasPorTipo(delPeriodo);
     texto += this.lineaPromedioCierre(delPeriodo, fechaCorte);
     texto += this.lineasDemoradas(delPeriodo, fechaCorte);
     texto += "==================================";
-    console.log(texto);
     return texto;
   }
 
-  lineaPorEstado(solicitudes: any[]) {
+  lineaPorEstado(solicitudes: DatosSolicitud[]) {
     const contar = (estado: Estado) =>
       solicitudes.filter((solicitud) => solicitud.estado === estado).length;
     return (
-      "Por estado: pendiente=" +
-      contar("pendiente") +
-      ", en curso=" +
-      contar("en curso") +
-      ", resuelta=" +
-      contar("resuelta") +
-      ", rechazada=" +
-      contar("rechazada") +
-      "\n"
+      `Por estado: pendiente=${contar("pendiente")}, en curso=${contar("en curso")}, ` +
+      `resuelta=${contar("resuelta")}, rechazada=${contar("rechazada")}\n`
     );
   }
 
-  lineasPorTipo(solicitudes: any[]) {
+  lineasPorTipo(solicitudes: DatosSolicitud[]) {
     const cantidadPorTipo = new Map<string, number>();
     for (const solicitud of solicitudes) {
-      cantidadPorTipo.set(
-        solicitud.tipo,
-        (cantidadPorTipo.get(solicitud.tipo) ?? 0) + 1,
-      );
+      const cantidad = cantidadPorTipo.get(solicitud.tipo) ?? 0;
+      cantidadPorTipo.set(solicitud.tipo, cantidad + 1);
     }
     let texto = "Por tipo:\n";
     for (const [tipo, cantidad] of cantidadPorTipo) {
-      texto += "  - " + tipo + ": " + cantidad + "\n";
+      texto += `  - ${tipo}: ${cantidad}\n`;
     }
     return texto;
   }
 
-  lineaPromedioCierre(solicitudes: any[], fechaCorte: string) {
-    const cerradas = solicitudes.filter((solicitud) =>
-      esEstadoFinal(solicitud.estado),
-    );
+  lineaPromedioCierre(solicitudes: DatosSolicitud[], fechaCorte: string) {
+    const cerradas = solicitudes.filter((s) => esEstadoFinal(s.estado));
     if (cerradas.length === 0) {
       return "Promedio de dias hasta el cierre: sin datos\n";
     }
@@ -300,34 +243,20 @@ export class GestorSolicitudes {
       (suma, solicitud) => suma + this.calcularDias(solicitud, fechaCorte),
       0,
     );
-    return (
-      "Promedio de dias hasta el cierre: " +
-      (totalDias / cerradas.length).toFixed(1) +
-      "\n"
-    );
+    const promedio = (totalDias / cerradas.length).toFixed(1);
+    return `Promedio de dias hasta el cierre: ${promedio}\n`;
   }
 
-  lineasDemoradas(solicitudes: any[], fechaCorte: string) {
+  lineasDemoradas(solicitudes: DatosSolicitud[], fechaCorte: string) {
     const demoradas = solicitudes.filter(
       (solicitud) =>
         !esEstadoFinal(solicitud.estado) &&
         this.calcularDias(solicitud, fechaCorte) > 7,
     );
-    let texto =
-      "Solicitudes demoradas (mas de 7 dias abiertas): " +
-      demoradas.length +
-      "\n";
+    let texto = `Solicitudes demoradas (mas de 7 dias abiertas): ${demoradas.length}\n`;
     for (const solicitud of demoradas) {
-      texto +=
-        "  #" +
-        solicitud.id +
-        " | " +
-        this.formatearFecha(solicitud.fecha) +
-        " | " +
-        solicitud.tipo +
-        " | " +
-        this.calcularDias(solicitud, fechaCorte) +
-        " dias\n";
+      const dias = this.calcularDias(solicitud, fechaCorte);
+      texto += `  #${solicitud.id} | ${formatearFecha(solicitud.fecha)} | ${solicitud.tipo} | ${dias} dias\n`;
     }
     return texto;
   }

@@ -1,15 +1,47 @@
 import * as fs from "fs";
 import { GestorSolicitudes } from "./GestorSolicitudes";
+import {
+  ejecutar,
+  listadoDeBusqueda,
+  mensajeAsignacion,
+  mensajeCambioDeEstado,
+  mensajeEmailActualizado,
+  mensajeRegistro,
+} from "./consola/mensajes";
 
 // Recorrido de prueba del sistema con datos ficticios.
 const ARCHIVO = "data/solicitudes.json";
 if (fs.existsSync(ARCHIVO)) fs.unlinkSync(ARCHIVO);
 fs.mkdirSync("data", { recursive: true });
 
-const g = new GestorSolicitudes(ARCHIVO);
+const gestor = new GestorSolicitudes(ARCHIVO);
+
+function registrar(
+  legajo: string,
+  nombre: string,
+  email: string,
+  tipo: string,
+  descripcion: string,
+  fecha: string,
+  urgente: boolean,
+): void {
+  ejecutar(() =>
+    mensajeRegistro(
+      gestor.registrarSolicitud(
+        legajo,
+        nombre,
+        email,
+        tipo,
+        descripcion,
+        fecha,
+        urgente,
+      ),
+    ),
+  );
+}
 
 console.log("--- Registro de solicitudes ---");
-g.registrarSolicitud(
+registrar(
   "10001",
   "Ana Torres",
   "ana.torres@mail.com",
@@ -18,7 +50,7 @@ g.registrarSolicitud(
   "2026-10-01",
   false,
 );
-g.registrarSolicitud(
+registrar(
   "10002",
   "Bruno Díaz",
   "bruno.diaz@mail.com",
@@ -27,7 +59,7 @@ g.registrarSolicitud(
   "2026-10-05",
   false,
 );
-g.registrarSolicitud(
+registrar(
   "10003",
   "Carla Méndez",
   "carla.mendez@mail.com",
@@ -36,7 +68,7 @@ g.registrarSolicitud(
   "2026-10-10",
   true,
 );
-g.registrarSolicitud(
+registrar(
   "10001",
   "Ana Torres",
   "ana.torres@mail.com",
@@ -45,7 +77,7 @@ g.registrarSolicitud(
   "2026-10-20",
   false,
 );
-g.registrarSolicitud(
+registrar(
   "10004",
   "Diego Sosa",
   "diego.sosa@mail.com",
@@ -56,7 +88,7 @@ g.registrarSolicitud(
 );
 
 console.log("--- Registros con datos incorrectos ---");
-g.registrarSolicitud(
+registrar(
   "123",
   "Eva Luna",
   "eva.luna@mail.com",
@@ -65,7 +97,7 @@ g.registrarSolicitud(
   "2026-10-26",
   false,
 );
-g.registrarSolicitud(
+registrar(
   "10005",
   "Eva Luna",
   "eva.lunamail.com",
@@ -74,7 +106,7 @@ g.registrarSolicitud(
   "2026-10-26",
   false,
 );
-g.registrarSolicitud(
+registrar(
   "10005",
   "Eva Luna",
   "eva.luna@mail.com",
@@ -83,7 +115,7 @@ g.registrarSolicitud(
   "2026-10-26",
   false,
 );
-g.registrarSolicitud(
+registrar(
   "10005",
   "Eva Luna",
   "eva.luna@mail.com",
@@ -94,22 +126,42 @@ g.registrarSolicitud(
 );
 
 console.log("--- Asignacion y cambios de estado ---");
-g.asignarResponsable(1);
-g.cambiarEstado(1, "en curso", "2026-10-02");
-g.cambiarEstado(1, "resuelta", "2026-10-04");
-g.asignarResponsable(2);
-g.cambiarEstado(2, "en curso", "2026-10-06");
-g.cambiarEstado(3, "en curso", "2026-10-11");
-g.cambiarEstado(3, "rechazada", "2026-10-12");
-g.cambiarEstado(1, "en curso", "2026-10-15");
-g.asignarResponsable(1);
-g.asignarResponsable(99);
-g.actualizarEmail("10002", "bruno.d@mail.com");
-g.actualizarEmail("10002", "bruno.mail");
+ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(1)));
+ejecutar(() =>
+  mensajeCambioDeEstado(gestor.cambiarEstado(1, "en curso", "2026-10-02")),
+);
+ejecutar(() =>
+  mensajeCambioDeEstado(gestor.cambiarEstado(1, "resuelta", "2026-10-04")),
+);
+ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(2)));
+ejecutar(() =>
+  mensajeCambioDeEstado(gestor.cambiarEstado(2, "en curso", "2026-10-06")),
+);
+ejecutar(() =>
+  mensajeCambioDeEstado(gestor.cambiarEstado(3, "en curso", "2026-10-11")),
+);
+ejecutar(() =>
+  mensajeCambioDeEstado(gestor.cambiarEstado(3, "rechazada", "2026-10-12")),
+);
+ejecutar(() =>
+  mensajeCambioDeEstado(gestor.cambiarEstado(1, "en curso", "2026-10-15")),
+);
+ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(1)));
+ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(99)));
+ejecutar(() =>
+  mensajeEmailActualizado(gestor.actualizarEmail("10002", "bruno.d@mail.com")),
+);
+ejecutar(() =>
+  mensajeEmailActualizado(gestor.actualizarEmail("10002", "bruno.mail")),
+);
 
 console.log("--- Busquedas ---");
-g.buscar("", "pendiente", "", "", "");
-g.buscar("certificado", "", "", "2026-10-01", "2026-10-31");
+ejecutar(() => listadoDeBusqueda(gestor.buscar("", "pendiente", "", "", "")));
+ejecutar(() =>
+  listadoDeBusqueda(
+    gestor.buscar("certificado", "", "", "2026-10-01", "2026-10-31"),
+  ),
+);
 
 console.log("--- Reporte ---");
-g.generarReporte("2026-10-30", "2026-10-01", "2026-10-31");
+ejecutar(() => gestor.generarReporte("2026-10-30", "2026-10-01", "2026-10-31"));
