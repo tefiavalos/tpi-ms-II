@@ -1,7 +1,12 @@
 import * as fs from "fs";
-import { GestorSolicitudes, type NuevaSolicitud } from "./GestorSolicitudes";
+
 import { RangoFechas } from "./dominio/RangoFechas";
 import { RepositorioJson } from "./repositorio/RepositorioJson";
+import { ReporteSolicitudes } from "./servicios/ReporteSolicitudes";
+import {
+  ServicioSolicitudes,
+  type NuevaSolicitud,
+} from "./servicios/ServicioSolicitudes";
 import {
   ejecutar,
   listadoDeBusqueda,
@@ -16,10 +21,12 @@ const ARCHIVO = "data/solicitudes.json";
 if (fs.existsSync(ARCHIVO)) fs.unlinkSync(ARCHIVO);
 fs.mkdirSync("data", { recursive: true });
 
-const gestor = new GestorSolicitudes(new RepositorioJson(ARCHIVO));
+const repositorio = new RepositorioJson(ARCHIVO);
+const servicio = new ServicioSolicitudes(repositorio);
+const reporte = new ReporteSolicitudes(repositorio);
 
 function registrar(datos: NuevaSolicitud): void {
-  ejecutar(() => mensajeRegistro(gestor.registrarSolicitud(datos)));
+  ejecutar(() => mensajeRegistro(servicio.registrarSolicitud(datos)));
 }
 
 console.log("--- Registro de solicitudes ---");
@@ -89,41 +96,43 @@ registrar({
 });
 
 console.log("--- Asignacion y cambios de estado ---");
-ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(1)));
+ejecutar(() => mensajeAsignacion(servicio.asignarResponsable(1)));
 ejecutar(() =>
-  mensajeCambioDeEstado(gestor.cambiarEstado(1, "en curso", "2026-10-02")),
+  mensajeCambioDeEstado(servicio.cambiarEstado(1, "en curso", "2026-10-02")),
 );
 ejecutar(() =>
-  mensajeCambioDeEstado(gestor.cambiarEstado(1, "resuelta", "2026-10-04")),
+  mensajeCambioDeEstado(servicio.cambiarEstado(1, "resuelta", "2026-10-04")),
 );
-ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(2)));
+ejecutar(() => mensajeAsignacion(servicio.asignarResponsable(2)));
 ejecutar(() =>
-  mensajeCambioDeEstado(gestor.cambiarEstado(2, "en curso", "2026-10-06")),
-);
-ejecutar(() =>
-  mensajeCambioDeEstado(gestor.cambiarEstado(3, "en curso", "2026-10-11")),
+  mensajeCambioDeEstado(servicio.cambiarEstado(2, "en curso", "2026-10-06")),
 );
 ejecutar(() =>
-  mensajeCambioDeEstado(gestor.cambiarEstado(3, "rechazada", "2026-10-12")),
+  mensajeCambioDeEstado(servicio.cambiarEstado(3, "en curso", "2026-10-11")),
 );
 ejecutar(() =>
-  mensajeCambioDeEstado(gestor.cambiarEstado(1, "en curso", "2026-10-15")),
-);
-ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(1)));
-ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(99)));
-ejecutar(() =>
-  mensajeEmailActualizado(gestor.actualizarEmail("10002", "bruno.d@mail.com")),
+  mensajeCambioDeEstado(servicio.cambiarEstado(3, "rechazada", "2026-10-12")),
 );
 ejecutar(() =>
-  mensajeEmailActualizado(gestor.actualizarEmail("10002", "bruno.mail")),
+  mensajeCambioDeEstado(servicio.cambiarEstado(1, "en curso", "2026-10-15")),
+);
+ejecutar(() => mensajeAsignacion(servicio.asignarResponsable(1)));
+ejecutar(() => mensajeAsignacion(servicio.asignarResponsable(99)));
+ejecutar(() =>
+  mensajeEmailActualizado(
+    servicio.actualizarEmail("10002", "bruno.d@mail.com"),
+  ),
+);
+ejecutar(() =>
+  mensajeEmailActualizado(servicio.actualizarEmail("10002", "bruno.mail")),
 );
 
 console.log("--- Busquedas ---");
 const octubre = new RangoFechas("2026-10-01", "2026-10-31");
-ejecutar(() => listadoDeBusqueda(gestor.buscar({ estado: "pendiente" })));
+ejecutar(() => listadoDeBusqueda(servicio.buscar({ estado: "pendiente" })));
 ejecutar(() =>
-  listadoDeBusqueda(gestor.buscar({ tipo: "certificado", rango: octubre })),
+  listadoDeBusqueda(servicio.buscar({ tipo: "certificado", rango: octubre })),
 );
 
 console.log("--- Reporte ---");
-ejecutar(() => gestor.generarReporte("2026-10-30", octubre));
+ejecutar(() => reporte.generar(octubre, "2026-10-30"));
