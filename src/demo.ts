@@ -9,17 +9,89 @@ fs.mkdirSync("data", { recursive: true });
 const g = new GestorSolicitudes(ARCHIVO);
 
 console.log("--- Registro de solicitudes ---");
-g.registrarSolicitud("10001", "Ana Torres", "ana.torres@mail.com", "certificado", "Certificado de alumno regular", "2026-10-01", false);
-g.registrarSolicitud("10002", "Bruno Díaz", "bruno.diaz@mail.com", "reclamo de nota", "Revision del segundo parcial", "2026-10-05", false);
-g.registrarSolicitud("10003", "Carla Méndez", "carla.mendez@mail.com", "equivalencia", "Equivalencia de Programacion I", "2026-10-10", true);
-g.registrarSolicitud("10001", "Ana Torres", "ana.torres@mail.com", "baja de materia", "Baja de Base de Datos I", "2026-10-20", false);
-g.registrarSolicitud("10004", "Diego Sosa", "diego.sosa@mail.com", "certificado", "Certificado de examen final", "2026-10-25", true);
+g.registrarSolicitud(
+  "10001",
+  "Ana Torres",
+  "ana.torres@mail.com",
+  "certificado",
+  "Certificado de alumno regular",
+  "2026-10-01",
+  false,
+);
+g.registrarSolicitud(
+  "10002",
+  "Bruno Díaz",
+  "bruno.diaz@mail.com",
+  "reclamo de nota",
+  "Revision del segundo parcial",
+  "2026-10-05",
+  false,
+);
+g.registrarSolicitud(
+  "10003",
+  "Carla Méndez",
+  "carla.mendez@mail.com",
+  "equivalencia",
+  "Equivalencia de Programacion I",
+  "2026-10-10",
+  true,
+);
+g.registrarSolicitud(
+  "10001",
+  "Ana Torres",
+  "ana.torres@mail.com",
+  "baja de materia",
+  "Baja de Base de Datos I",
+  "2026-10-20",
+  false,
+);
+g.registrarSolicitud(
+  "10004",
+  "Diego Sosa",
+  "diego.sosa@mail.com",
+  "certificado",
+  "Certificado de examen final",
+  "2026-10-25",
+  true,
+);
 
 console.log("--- Registros con datos incorrectos ---");
-g.registrarSolicitud("123", "Eva Luna", "eva.luna@mail.com", "certificado", "Certificado de alumno regular", "2026-10-26", false);
-g.registrarSolicitud("10005", "Eva Luna", "eva.lunamail.com", "certificado", "Certificado de alumno regular", "2026-10-26", false);
-g.registrarSolicitud("10005", "Eva Luna", "eva.luna@mail.com", "certificado", "Corto", "2026-10-26", false);
-g.registrarSolicitud("10005", "Eva Luna", "eva.luna@mail.com", "titulo", "Tramite de titulo intermedio", "2026-10-26", false);
+g.registrarSolicitud(
+  "123",
+  "Eva Luna",
+  "eva.luna@mail.com",
+  "certificado",
+  "Certificado de alumno regular",
+  "2026-10-26",
+  false,
+);
+g.registrarSolicitud(
+  "10005",
+  "Eva Luna",
+  "eva.lunamail.com",
+  "certificado",
+  "Certificado de alumno regular",
+  "2026-10-26",
+  false,
+);
+g.registrarSolicitud(
+  "10005",
+  "Eva Luna",
+  "eva.luna@mail.com",
+  "certificado",
+  "Corto",
+  "2026-10-26",
+  false,
+);
+g.registrarSolicitud(
+  "10005",
+  "Eva Luna",
+  "eva.luna@mail.com",
+  "titulo",
+  "Tramite de titulo intermedio",
+  "2026-10-26",
+  false,
+);
 
 console.log("--- Asignacion y cambios de estado ---");
 g.asignarResponsable(1);

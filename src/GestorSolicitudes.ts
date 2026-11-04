@@ -1,8 +1,10 @@
 import * as fs from "fs";
 
+const MS_POR_DIA = 86400000;
+
 // Gestor de solicitudes academicas
 export class GestorSolicitudes {
-  lst: any[] = [];
+  solicitudes: any[] = [];
   estudiantes: any[] = [];
   responsables: any[] = [
     { id: 1, nombre: "Laura Gómez", area: "Alumnos" },
@@ -18,223 +20,341 @@ export class GestorSolicitudes {
 
   cargar() {
     try {
-      const d = JSON.parse(fs.readFileSync(this.archivo, "utf-8"));
-      this.lst = d.solicitudes;
-      this.estudiantes = d.estudiantes;
-      this.ultimoId = d.ultimoId;
+      const datos = JSON.parse(fs.readFileSync(this.archivo, "utf-8"));
+      this.solicitudes = datos.solicitudes;
+      this.estudiantes = datos.estudiantes;
+      this.ultimoId = datos.ultimoId;
     } catch (e) {}
   }
 
   guardar() {
-    const d = { ultimoId: this.ultimoId, estudiantes: this.estudiantes, solicitudes: this.lst };
-    fs.writeFileSync(this.archivo, JSON.stringify(d, null, 2));
+    const datos = {
+      ultimoId: this.ultimoId,
+      estudiantes: this.estudiantes,
+      solicitudes: this.solicitudes,
+    };
+    fs.writeFileSync(this.archivo, JSON.stringify(datos, null, 2));
   }
 
-  registrarSolicitud(legajo: string, nombre: string, email: string, tipo: string, descripcion: string, fecha: string, urgente: boolean) {
-    if (legajo == "" || legajo.length != 5) {
-      console.log("Error: legajo invalido");
-      return -1;
-    }
-    if (email.indexOf("@") == -1 || email.indexOf(".") == -1) {
-      console.log("Error: email invalido");
-      return -1;
-    }
-    if (descripcion.length < 10) {
-      console.log("Error: la descripcion es muy corta");
-      return -1;
-    }
-    let p = "";
-    if (tipo == "certificado") {
-      p = "baja";
-    } else if (tipo == "equivalencia") {
-      p = "media";
-    } else if (tipo == "reclamo de nota") {
-      p = "alta";
-    } else if (tipo == "baja de materia") {
-      p = "media";
-    } else {
+  registrarSolicitud(
+    legajo: string,
+    nombre: string,
+    email: string,
+    tipo: string,
+    descripcion: string,
+    fecha: string,
+    urgente: boolean,
+  ) {
+    if (!this.datosValidos(legajo, email, descripcion)) return -1;
+    let prioridad = this.prioridadSegunTipo(tipo);
+    if (prioridad === "") {
       console.log("Error: tipo de solicitud invalido");
       return -1;
     }
-    if (urgente == true) {
-      if (p == "baja") p = "media";
-      else p = "alta";
-    }
-    let est = null;
-    for (let i = 0; i < this.estudiantes.length; i++) {
-      if (this.estudiantes[i].legajo == legajo) est = this.estudiantes[i];
-    }
-    if (est == null) {
-      est = { legajo: legajo, nombre: nombre, email: email };
-      this.estudiantes.push(est);
-    }
+    if (urgente) prioridad = this.subirPrioridad(prioridad);
+    this.registrarEstudianteSiNoExiste(legajo, nombre, email);
     this.ultimoId++;
-    const s = {
+    const solicitud = {
       id: this.ultimoId,
       legajo: legajo,
       tipo: tipo,
       descripcion: descripcion,
       fecha: fecha,
-      prioridad: p,
+      prioridad: prioridad,
       estado: "pendiente",
       responsable: null,
       fechaCierre: null,
     };
-    this.lst.push(s);
+    this.solicitudes.push(solicitud);
     this.guardar();
-    console.log("Solicitud #" + s.id + " registrada: " + tipo + " (prioridad " + p + ")");
-    return s.id;
+    console.log(
+      "Solicitud #" +
+        solicitud.id +
+        " registrada: " +
+        tipo +
+        " (prioridad " +
+        prioridad +
+        ")",
+    );
+    return solicitud.id;
   }
 
-  actualizarEmail(legajo: string, email: string) {
-    if (email.indexOf("@") == -1 || email.indexOf(".") == -1) {
+  datosValidos(legajo: string, email: string, descripcion: string) {
+    if (legajo.length !== 5) {
+      console.log("Error: legajo invalido");
+      return false;
+    }
+    if (!this.emailValido(email)) {
       console.log("Error: email invalido");
       return false;
     }
-    let est = null;
-    for (let i = 0; i < this.estudiantes.length; i++) {
-      if (this.estudiantes[i].legajo == legajo) est = this.estudiantes[i];
+    if (descripcion.length < 10) {
+      console.log("Error: la descripcion es muy corta");
+      return false;
     }
-    if (est == null) {
+    return true;
+  }
+
+  emailValido(email: string) {
+    return email.includes("@") && email.includes(".");
+  }
+
+  prioridadSegunTipo(tipo: string) {
+    if (tipo === "certificado") return "baja";
+    if (tipo === "equivalencia") return "media";
+    if (tipo === "reclamo de nota") return "alta";
+    if (tipo === "baja de materia") return "media";
+    return "";
+  }
+
+  subirPrioridad(prioridad: string) {
+    return prioridad === "baja" ? "media" : "alta";
+  }
+
+  registrarEstudianteSiNoExiste(legajo: string, nombre: string, email: string) {
+    if (this.buscarEstudiante(legajo) === undefined) {
+      this.estudiantes.push({ legajo: legajo, nombre: nombre, email: email });
+    }
+  }
+
+  buscarEstudiante(legajo: string) {
+    return this.estudiantes.find((estudiante) => estudiante.legajo === legajo);
+  }
+
+  buscarSolicitud(id: number) {
+    return this.solicitudes.find((solicitud) => solicitud.id === id);
+  }
+
+  actualizarEmail(legajo: string, email: string) {
+    if (!this.emailValido(email)) {
+      console.log("Error: email invalido");
+      return false;
+    }
+    const estudiante = this.buscarEstudiante(legajo);
+    if (estudiante === undefined) {
       console.log("Error: no existe el estudiante " + legajo);
       return false;
     }
-    est.email = email;
+    estudiante.email = email;
     this.guardar();
     console.log("Email actualizado para el legajo " + legajo);
     return true;
   }
 
   asignarResponsable(id: number) {
-    let s = null;
-    for (let i = 0; i < this.lst.length; i++) {
-      if (this.lst[i].id == id) s = this.lst[i];
-    }
-    if (s == null) {
+    const solicitud = this.buscarSolicitud(id);
+    if (solicitud === undefined) {
       console.log("Error: no existe la solicitud #" + id);
       return false;
     }
-    if (s.estado == "resuelta" || s.estado == "rechazada") {
+    if (this.estaCerrada(solicitud)) {
       console.log("Error: la solicitud #" + id + " ya esta cerrada");
       return false;
     }
-    let area = "";
-    if (s.tipo == "certificado") area = "Alumnos";
-    else if (s.tipo == "equivalencia") area = "Coordinación";
-    else if (s.tipo == "reclamo de nota") area = "Coordinación";
-    else if (s.tipo == "baja de materia") area = "Alumnos";
-    let r = null;
-    for (let i = 0; i < this.responsables.length; i++) {
-      if (this.responsables[i].area == area) r = this.responsables[i];
-    }
-    s.responsable = r.nombre;
+    const area = this.areaSegunTipo(solicitud.tipo);
+    const responsable = this.responsables.find((r) => r.area === area);
+    solicitud.responsable = responsable.nombre;
     this.guardar();
-    console.log("Solicitud #" + id + " asignada a " + r.nombre + " (" + area + ")");
+    console.log(
+      "Solicitud #" +
+        id +
+        " asignada a " +
+        responsable.nombre +
+        " (" +
+        area +
+        ")",
+    );
     return true;
   }
 
-  cambiarEstado(id: number, nuevo: string, fecha: string) {
-    let s = null;
-    for (let i = 0; i < this.lst.length; i++) {
-      if (this.lst[i].id == id) s = this.lst[i];
-    }
-    if (s == null) {
+  areaSegunTipo(tipo: string) {
+    if (tipo === "certificado") return "Alumnos";
+    if (tipo === "equivalencia") return "Coordinación";
+    if (tipo === "reclamo de nota") return "Coordinación";
+    return "Alumnos";
+  }
+
+  estaCerrada(solicitud: any) {
+    return solicitud.estado === "resuelta" || solicitud.estado === "rechazada";
+  }
+
+  cambiarEstado(id: number, nuevoEstado: string, fecha: string) {
+    const solicitud = this.buscarSolicitud(id);
+    if (solicitud === undefined) {
       console.log("Error: no existe la solicitud #" + id);
       return false;
     }
-    let ok = false;
-    if (s.estado == "pendiente") {
-      if (nuevo == "en curso" || nuevo == "rechazada") ok = true;
-    } else if (s.estado == "en curso") {
-      if (nuevo == "resuelta" || nuevo == "rechazada") ok = true;
-    }
-    if (!ok) {
-      console.log("Error: no se puede pasar de " + s.estado + " a " + nuevo);
+    if (!this.transicionPermitida(solicitud.estado, nuevoEstado)) {
+      console.log(
+        "Error: no se puede pasar de " + solicitud.estado + " a " + nuevoEstado,
+      );
       return false;
     }
-    if (nuevo == "en curso" && s.responsable == null) {
-      console.log("Error: la solicitud #" + id + " no tiene responsable asignado");
+    if (nuevoEstado === "en curso" && solicitud.responsable === null) {
+      console.log(
+        "Error: la solicitud #" + id + " no tiene responsable asignado",
+      );
       return false;
     }
-    s.estado = nuevo;
-    if (nuevo == "resuelta" || nuevo == "rechazada") s.fechaCierre = fecha;
+    solicitud.estado = nuevoEstado;
+    if (this.estaCerrada(solicitud)) solicitud.fechaCierre = fecha;
     this.guardar();
-    console.log("Solicitud #" + id + " ahora esta " + nuevo);
+    console.log("Solicitud #" + id + " ahora esta " + nuevoEstado);
     return true;
   }
 
-  buscar(tipo: string, estado: string, prioridad: string, desde: string, hasta: string) {
-    const res = [];
-    for (let i = 0; i < this.lst.length; i++) {
-      const x = this.lst[i];
-      if (tipo != "" && x.tipo != tipo) continue;
-      if (estado != "" && x.estado != estado) continue;
-      if (prioridad != "" && x.prioridad != prioridad) continue;
-      if (desde != "" && x.fecha < desde) continue;
-      if (hasta != "" && x.fecha > hasta) continue;
-      res.push(x);
+  transicionPermitida(estadoActual: string, nuevoEstado: string) {
+    if (estadoActual === "pendiente") {
+      return nuevoEstado === "en curso" || nuevoEstado === "rechazada";
     }
-    console.log("Resultados de la busqueda: " + res.length);
-    for (let i = 0; i < res.length; i++) {
-      const f = res[i].fecha.split("-");
-      console.log("  #" + res[i].id + " | " + f[2] + "/" + f[1] + "/" + f[0] + " | " + res[i].tipo + " | " + res[i].prioridad + " | " + res[i].estado);
+    if (estadoActual === "en curso") {
+      return nuevoEstado === "resuelta" || nuevoEstado === "rechazada";
     }
-    return res;
+    return false;
   }
 
-  calcularDias(s: any, hoy: string) {
-    const fin = s.fechaCierre != null ? s.fechaCierre : hoy;
-    const d1 = new Date(s.fecha);
-    const d2 = new Date(fin);
-    return Math.round((d2.getTime() - d1.getTime()) / 86400000);
+  buscar(
+    tipo: string,
+    estado: string,
+    prioridad: string,
+    desde: string,
+    hasta: string,
+  ) {
+    const resultados = this.solicitudes.filter(
+      (solicitud) =>
+        (tipo === "" || solicitud.tipo === tipo) &&
+        (estado === "" || solicitud.estado === estado) &&
+        (prioridad === "" || solicitud.prioridad === prioridad) &&
+        this.estaEnRango(solicitud.fecha, desde, hasta),
+    );
+    console.log("Resultados de la busqueda: " + resultados.length);
+    for (const solicitud of resultados) {
+      console.log(
+        "  #" +
+          solicitud.id +
+          " | " +
+          this.formatearFecha(solicitud.fecha) +
+          " | " +
+          solicitud.tipo +
+          " | " +
+          solicitud.prioridad +
+          " | " +
+          solicitud.estado,
+      );
+    }
+    return resultados;
   }
 
-  generarReporte(hoy: string, desde: string, hasta: string) {
-    let pend = 0;
-    let enc = 0;
-    let res = 0;
-    let rech = 0;
-    const porTipo: any = {};
-    let total = 0;
-    let dias = 0;
-    let cerradas = 0;
-    const demoradas = [];
-    for (let i = 0; i < this.lst.length; i++) {
-      const s = this.lst[i];
-      if (desde != "" && s.fecha < desde) continue;
-      if (hasta != "" && s.fecha > hasta) continue;
-      total++;
-      if (s.estado == "pendiente") pend++;
-      else if (s.estado == "en curso") enc++;
-      else if (s.estado == "resuelta") res++;
-      else if (s.estado == "rechazada") rech++;
-      if (porTipo[s.tipo] == undefined) porTipo[s.tipo] = 0;
-      porTipo[s.tipo]++;
-      if (s.estado == "resuelta" || s.estado == "rechazada") {
-        dias = dias + this.calcularDias(s, hoy);
-        cerradas++;
-      } else {
-        if (this.calcularDias(s, hoy) > 7) demoradas.push(s);
-      }
+  estaEnRango(fecha: string, desde: string, hasta: string) {
+    return (desde === "" || fecha >= desde) && (hasta === "" || fecha <= hasta);
+  }
+
+  formatearFecha(fechaIso: string) {
+    const [anio, mes, dia] = fechaIso.split("-");
+    return dia + "/" + mes + "/" + anio;
+  }
+
+  calcularDias(solicitud: any, fechaCorte: string) {
+    const fin =
+      solicitud.fechaCierre !== null ? solicitud.fechaCierre : fechaCorte;
+    const inicio = new Date(solicitud.fecha);
+    return Math.round(
+      (new Date(fin).getTime() - inicio.getTime()) / MS_POR_DIA,
+    );
+  }
+
+  generarReporte(fechaCorte: string, desde: string, hasta: string) {
+    const delPeriodo = this.solicitudes.filter((solicitud) =>
+      this.estaEnRango(solicitud.fecha, desde, hasta),
+    );
+    let texto = "===== REPORTE DE SOLICITUDES =====\n";
+    texto +=
+      "Periodo: " +
+      this.formatearFecha(desde) +
+      " al " +
+      this.formatearFecha(hasta) +
+      "\n";
+    texto += "Total: " + delPeriodo.length + "\n";
+    texto += this.lineaPorEstado(delPeriodo);
+    texto += this.lineasPorTipo(delPeriodo);
+    texto += this.lineaPromedioCierre(delPeriodo, fechaCorte);
+    texto += this.lineasDemoradas(delPeriodo, fechaCorte);
+    texto += "==================================";
+    console.log(texto);
+    return texto;
+  }
+
+  lineaPorEstado(solicitudes: any[]) {
+    const contar = (estado: string) =>
+      solicitudes.filter((solicitud) => solicitud.estado === estado).length;
+    return (
+      "Por estado: pendiente=" +
+      contar("pendiente") +
+      ", en curso=" +
+      contar("en curso") +
+      ", resuelta=" +
+      contar("resuelta") +
+      ", rechazada=" +
+      contar("rechazada") +
+      "\n"
+    );
+  }
+
+  lineasPorTipo(solicitudes: any[]) {
+    const cantidadPorTipo = new Map<string, number>();
+    for (const solicitud of solicitudes) {
+      cantidadPorTipo.set(
+        solicitud.tipo,
+        (cantidadPorTipo.get(solicitud.tipo) ?? 0) + 1,
+      );
     }
-    const f1 = desde.split("-");
-    const f2 = hasta.split("-");
-    let txt = "";
-    txt += "===== REPORTE DE SOLICITUDES =====\n";
-    txt += "Periodo: " + f1[2] + "/" + f1[1] + "/" + f1[0] + " al " + f2[2] + "/" + f2[1] + "/" + f2[0] + "\n";
-    txt += "Total: " + total + "\n";
-    txt += "Por estado: pendiente=" + pend + ", en curso=" + enc + ", resuelta=" + res + ", rechazada=" + rech + "\n";
-    txt += "Por tipo:\n";
-    for (const t in porTipo) txt += "  - " + t + ": " + porTipo[t] + "\n";
-    if (cerradas > 0) txt += "Promedio de dias hasta el cierre: " + (dias / cerradas).toFixed(1) + "\n";
-    else txt += "Promedio de dias hasta el cierre: sin datos\n";
-    txt += "Solicitudes demoradas (mas de 7 dias abiertas): " + demoradas.length + "\n";
-    for (let i = 0; i < demoradas.length; i++) {
-      const f = demoradas[i].fecha.split("-");
-      txt += "  #" + demoradas[i].id + " | " + f[2] + "/" + f[1] + "/" + f[0] + " | " + demoradas[i].tipo + " | " + this.calcularDias(demoradas[i], hoy) + " dias\n";
+    let texto = "Por tipo:\n";
+    for (const [tipo, cantidad] of cantidadPorTipo) {
+      texto += "  - " + tipo + ": " + cantidad + "\n";
     }
-    txt += "==================================";
-    console.log(txt);
-    return txt;
+    return texto;
+  }
+
+  lineaPromedioCierre(solicitudes: any[], fechaCorte: string) {
+    const cerradas = solicitudes.filter((solicitud) =>
+      this.estaCerrada(solicitud),
+    );
+    if (cerradas.length === 0) {
+      return "Promedio de dias hasta el cierre: sin datos\n";
+    }
+    const totalDias = cerradas.reduce(
+      (suma, solicitud) => suma + this.calcularDias(solicitud, fechaCorte),
+      0,
+    );
+    return (
+      "Promedio de dias hasta el cierre: " +
+      (totalDias / cerradas.length).toFixed(1) +
+      "\n"
+    );
+  }
+
+  lineasDemoradas(solicitudes: any[], fechaCorte: string) {
+    const demoradas = solicitudes.filter(
+      (solicitud) =>
+        !this.estaCerrada(solicitud) &&
+        this.calcularDias(solicitud, fechaCorte) > 7,
+    );
+    let texto =
+      "Solicitudes demoradas (mas de 7 dias abiertas): " +
+      demoradas.length +
+      "\n";
+    for (const solicitud of demoradas) {
+      texto +=
+        "  #" +
+        solicitud.id +
+        " | " +
+        this.formatearFecha(solicitud.fecha) +
+        " | " +
+        solicitud.tipo +
+        " | " +
+        this.calcularDias(solicitud, fechaCorte) +
+        " dias\n";
+    }
+    return texto;
   }
 }
