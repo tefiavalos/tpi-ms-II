@@ -1,5 +1,6 @@
 import * as fs from "fs";
-import { GestorSolicitudes } from "./GestorSolicitudes";
+import { GestorSolicitudes, type NuevaSolicitud } from "./GestorSolicitudes";
+import { RangoFechas } from "./dominio/RangoFechas";
 import { RepositorioJson } from "./repositorio/RepositorioJson";
 import {
   ejecutar,
@@ -17,114 +18,75 @@ fs.mkdirSync("data", { recursive: true });
 
 const gestor = new GestorSolicitudes(new RepositorioJson(ARCHIVO));
 
-function registrar(
-  legajo: string,
-  nombre: string,
-  email: string,
-  tipo: string,
-  descripcion: string,
-  fecha: string,
-  urgente: boolean,
-): void {
-  ejecutar(() =>
-    mensajeRegistro(
-      gestor.registrarSolicitud(
-        legajo,
-        nombre,
-        email,
-        tipo,
-        descripcion,
-        fecha,
-        urgente,
-      ),
-    ),
-  );
+function registrar(datos: NuevaSolicitud): void {
+  ejecutar(() => mensajeRegistro(gestor.registrarSolicitud(datos)));
 }
 
 console.log("--- Registro de solicitudes ---");
-registrar(
-  "10001",
-  "Ana Torres",
-  "ana.torres@mail.com",
-  "certificado",
-  "Certificado de alumno regular",
-  "2026-10-01",
-  false,
-);
-registrar(
-  "10002",
-  "Bruno Díaz",
-  "bruno.diaz@mail.com",
-  "reclamo de nota",
-  "Revision del segundo parcial",
-  "2026-10-05",
-  false,
-);
-registrar(
-  "10003",
-  "Carla Méndez",
-  "carla.mendez@mail.com",
-  "equivalencia",
-  "Equivalencia de Programacion I",
-  "2026-10-10",
-  true,
-);
-registrar(
-  "10001",
-  "Ana Torres",
-  "ana.torres@mail.com",
-  "baja de materia",
-  "Baja de Base de Datos I",
-  "2026-10-20",
-  false,
-);
-registrar(
-  "10004",
-  "Diego Sosa",
-  "diego.sosa@mail.com",
-  "certificado",
-  "Certificado de examen final",
-  "2026-10-25",
-  true,
-);
+registrar({
+  legajo: "10001",
+  nombre: "Ana Torres",
+  email: "ana.torres@mail.com",
+  tipo: "certificado",
+  descripcion: "Certificado de alumno regular",
+  fecha: "2026-10-01",
+  urgente: false,
+});
+registrar({
+  legajo: "10002",
+  nombre: "Bruno Díaz",
+  email: "bruno.diaz@mail.com",
+  tipo: "reclamo de nota",
+  descripcion: "Revision del segundo parcial",
+  fecha: "2026-10-05",
+  urgente: false,
+});
+registrar({
+  legajo: "10003",
+  nombre: "Carla Méndez",
+  email: "carla.mendez@mail.com",
+  tipo: "equivalencia",
+  descripcion: "Equivalencia de Programacion I",
+  fecha: "2026-10-10",
+  urgente: true,
+});
+registrar({
+  legajo: "10001",
+  nombre: "Ana Torres",
+  email: "ana.torres@mail.com",
+  tipo: "baja de materia",
+  descripcion: "Baja de Base de Datos I",
+  fecha: "2026-10-20",
+  urgente: false,
+});
+registrar({
+  legajo: "10004",
+  nombre: "Diego Sosa",
+  email: "diego.sosa@mail.com",
+  tipo: "certificado",
+  descripcion: "Certificado de examen final",
+  fecha: "2026-10-25",
+  urgente: true,
+});
 
 console.log("--- Registros con datos incorrectos ---");
-registrar(
-  "123",
-  "Eva Luna",
-  "eva.luna@mail.com",
-  "certificado",
-  "Certificado de alumno regular",
-  "2026-10-26",
-  false,
-);
-registrar(
-  "10005",
-  "Eva Luna",
-  "eva.lunamail.com",
-  "certificado",
-  "Certificado de alumno regular",
-  "2026-10-26",
-  false,
-);
-registrar(
-  "10005",
-  "Eva Luna",
-  "eva.luna@mail.com",
-  "certificado",
-  "Corto",
-  "2026-10-26",
-  false,
-);
-registrar(
-  "10005",
-  "Eva Luna",
-  "eva.luna@mail.com",
-  "titulo",
-  "Tramite de titulo intermedio",
-  "2026-10-26",
-  false,
-);
+const solicitudDeEva: NuevaSolicitud = {
+  legajo: "10005",
+  nombre: "Eva Luna",
+  email: "eva.luna@mail.com",
+  tipo: "certificado",
+  descripcion: "Certificado de alumno regular",
+  fecha: "2026-10-26",
+  urgente: false,
+};
+registrar({ ...solicitudDeEva, legajo: "123" });
+registrar({ ...solicitudDeEva, email: "eva.lunamail.com" });
+registrar({ ...solicitudDeEva, descripcion: "Corto" });
+registrar({
+  ...solicitudDeEva,
+  tipo: "titulo",
+  descripcion: "Tramite de titulo intermedio",
+});
 
 console.log("--- Asignacion y cambios de estado ---");
 ejecutar(() => mensajeAsignacion(gestor.asignarResponsable(1)));
@@ -157,12 +119,11 @@ ejecutar(() =>
 );
 
 console.log("--- Busquedas ---");
-ejecutar(() => listadoDeBusqueda(gestor.buscar("", "pendiente", "", "", "")));
+const octubre = new RangoFechas("2026-10-01", "2026-10-31");
+ejecutar(() => listadoDeBusqueda(gestor.buscar({ estado: "pendiente" })));
 ejecutar(() =>
-  listadoDeBusqueda(
-    gestor.buscar("certificado", "", "", "2026-10-01", "2026-10-31"),
-  ),
+  listadoDeBusqueda(gestor.buscar({ tipo: "certificado", rango: octubre })),
 );
 
 console.log("--- Reporte ---");
-ejecutar(() => gestor.generarReporte("2026-10-30", "2026-10-01", "2026-10-31"));
+ejecutar(() => gestor.generarReporte("2026-10-30", octubre));
