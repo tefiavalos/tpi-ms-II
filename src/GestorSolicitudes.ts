@@ -1,4 +1,12 @@
 import * as fs from "fs";
+import {
+  areaResponsable,
+  esEstadoFinal,
+  esTipoValido,
+  prioridadInicial,
+  transicionPermitida,
+} from "./dominio/reglas";
+import type { Estado } from "./dominio/tipos";
 
 const MS_POR_DIA = 86400000;
 
@@ -46,12 +54,11 @@ export class GestorSolicitudes {
     urgente: boolean,
   ) {
     if (!this.datosValidos(legajo, email, descripcion)) return -1;
-    let prioridad = this.prioridadSegunTipo(tipo);
-    if (prioridad === "") {
+    if (!esTipoValido(tipo)) {
       console.log("Error: tipo de solicitud invalido");
       return -1;
     }
-    if (urgente) prioridad = this.subirPrioridad(prioridad);
+    const prioridad = prioridadInicial(tipo, urgente);
     this.registrarEstudianteSiNoExiste(legajo, nombre, email);
     this.ultimoId++;
     const solicitud = {
@@ -99,18 +106,6 @@ export class GestorSolicitudes {
     return email.includes("@") && email.includes(".");
   }
 
-  prioridadSegunTipo(tipo: string) {
-    if (tipo === "certificado") return "baja";
-    if (tipo === "equivalencia") return "media";
-    if (tipo === "reclamo de nota") return "alta";
-    if (tipo === "baja de materia") return "media";
-    return "";
-  }
-
-  subirPrioridad(prioridad: string) {
-    return prioridad === "baja" ? "media" : "alta";
-  }
-
   registrarEstudianteSiNoExiste(legajo: string, nombre: string, email: string) {
     if (this.buscarEstudiante(legajo) === undefined) {
       this.estudiantes.push({ legajo: legajo, nombre: nombre, email: email });
@@ -147,11 +142,11 @@ export class GestorSolicitudes {
       console.log("Error: no existe la solicitud #" + id);
       return false;
     }
-    if (this.estaCerrada(solicitud)) {
+    if (esEstadoFinal(solicitud.estado)) {
       console.log("Error: la solicitud #" + id + " ya esta cerrada");
       return false;
     }
-    const area = this.areaSegunTipo(solicitud.tipo);
+    const area = areaResponsable(solicitud.tipo);
     const responsable = this.responsables.find((r) => r.area === area);
     solicitud.responsable = responsable.nombre;
     this.guardar();
@@ -167,24 +162,13 @@ export class GestorSolicitudes {
     return true;
   }
 
-  areaSegunTipo(tipo: string) {
-    if (tipo === "certificado") return "Alumnos";
-    if (tipo === "equivalencia") return "Coordinación";
-    if (tipo === "reclamo de nota") return "Coordinación";
-    return "Alumnos";
-  }
-
-  estaCerrada(solicitud: any) {
-    return solicitud.estado === "resuelta" || solicitud.estado === "rechazada";
-  }
-
-  cambiarEstado(id: number, nuevoEstado: string, fecha: string) {
+  cambiarEstado(id: number, nuevoEstado: Estado, fecha: string) {
     const solicitud = this.buscarSolicitud(id);
     if (solicitud === undefined) {
       console.log("Error: no existe la solicitud #" + id);
       return false;
     }
-    if (!this.transicionPermitida(solicitud.estado, nuevoEstado)) {
+    if (!transicionPermitida(solicitud.estado, nuevoEstado)) {
       console.log(
         "Error: no se puede pasar de " + solicitud.estado + " a " + nuevoEstado,
       );
@@ -197,20 +181,10 @@ export class GestorSolicitudes {
       return false;
     }
     solicitud.estado = nuevoEstado;
-    if (this.estaCerrada(solicitud)) solicitud.fechaCierre = fecha;
+    if (esEstadoFinal(solicitud.estado)) solicitud.fechaCierre = fecha;
     this.guardar();
     console.log("Solicitud #" + id + " ahora esta " + nuevoEstado);
     return true;
-  }
-
-  transicionPermitida(estadoActual: string, nuevoEstado: string) {
-    if (estadoActual === "pendiente") {
-      return nuevoEstado === "en curso" || nuevoEstado === "rechazada";
-    }
-    if (estadoActual === "en curso") {
-      return nuevoEstado === "resuelta" || nuevoEstado === "rechazada";
-    }
-    return false;
   }
 
   buscar(
@@ -285,7 +259,7 @@ export class GestorSolicitudes {
   }
 
   lineaPorEstado(solicitudes: any[]) {
-    const contar = (estado: string) =>
+    const contar = (estado: Estado) =>
       solicitudes.filter((solicitud) => solicitud.estado === estado).length;
     return (
       "Por estado: pendiente=" +
@@ -317,7 +291,7 @@ export class GestorSolicitudes {
 
   lineaPromedioCierre(solicitudes: any[], fechaCorte: string) {
     const cerradas = solicitudes.filter((solicitud) =>
-      this.estaCerrada(solicitud),
+      esEstadoFinal(solicitud.estado),
     );
     if (cerradas.length === 0) {
       return "Promedio de dias hasta el cierre: sin datos\n";
@@ -336,7 +310,7 @@ export class GestorSolicitudes {
   lineasDemoradas(solicitudes: any[], fechaCorte: string) {
     const demoradas = solicitudes.filter(
       (solicitud) =>
-        !this.estaCerrada(solicitud) &&
+        !esEstadoFinal(solicitud.estado) &&
         this.calcularDias(solicitud, fechaCorte) > 7,
     );
     let texto =
