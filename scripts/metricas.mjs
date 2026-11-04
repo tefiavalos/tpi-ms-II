@@ -50,7 +50,8 @@ for (const archivo of await eslint.lintFiles([carpeta])) {
 
 console.log("Función".padEnd(62) + "Líneas  Complejidad  Parámetros");
 for (const [clave, f] of metricas) {
-  if (f.lineas === 0) continue; // inicializadores de campos, no son funciones
+  // Se omiten los inicializadores de campos y las funciones flecha internas.
+  if (f.lineas === 0 || clave.includes("Arrow function")) continue;
   console.log(
     clave.padEnd(62) +
       String(f.lineas).padStart(6) +
