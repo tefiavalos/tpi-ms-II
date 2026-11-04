@@ -4,6 +4,7 @@
   "description": "Sistema de Gestión de Solicitudes Académicas",
   "private": true,
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
     "prebuild": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "build": "tsc -p tsconfig.json",
     "demo": "npm run --silent build && node dist/src/demo.js",
@@ -12,7 +13,7 @@
     "lint": "eslint src tests",
     "metricas": "node scripts/metricas.mjs src",
     "pretest": "npm run --silent build",
-    "test": "node --test --test-reporter=spec \"dist/tests/**/*.test.js\""
+    "test": "node --test --test-reporter=spec --experimental-test-coverage --test-coverage-include=\"dist/src/**\" --test-coverage-exclude=\"dist/src/demo.js\" --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 \"dist/tests/**/*.test.js\""
   },
   "devDependencies": {
     "@types/node": "26.6.3",
