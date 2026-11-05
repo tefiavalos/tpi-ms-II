@@ -23,6 +23,10 @@ describe("reglas por tipo de solicitud", () => {
     assert.equal(prioridadInicial("equivalencia", true), "alta");
   });
 
+  it("si es urgente y ya tiene prioridad alta, queda en alta", () => {
+    assert.equal(prioridadInicial("reclamo de nota", true), "alta");
+  });
+
   it("asigna el área responsable según el tipo", () => {
     assert.equal(areaResponsable("certificado"), "Alumnos");
     assert.equal(areaResponsable("reclamo de nota"), "Coordinación");
