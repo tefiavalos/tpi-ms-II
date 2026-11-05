@@ -4,9 +4,11 @@
     "module": "commonjs",
     "outDir": "dist",
     "rootDir": ".",
-    "strict": false,
+    "strict": true,
     "esModuleInterop": true,
-    "types": ["node"]
+    "types": ["node"],
+    "noUnusedLocals": true,
+    "noImplicitReturns": true
   },
   "include": ["src", "tests"]
 }
