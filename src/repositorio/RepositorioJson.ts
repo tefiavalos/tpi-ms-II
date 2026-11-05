@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { ErrorDePersistencia } from "../dominio/errores";
 import { Estudiante, type DatosEstudiante } from "../dominio/Estudiante";
 import { Solicitud, type DatosSolicitud } from "../dominio/Solicitud";
 import { RepositorioEnMemoria } from "./RepositorioEnMemoria";
@@ -34,15 +35,26 @@ export class RepositorioJson extends RepositorioEnMemoria {
   }
 
   private cargar(): void {
+    // Si el archivo todavía no existe, se empieza sin datos.
+    if (!fs.existsSync(this.archivo)) return;
+    const datos = this.leerArchivo();
+    this.ultimoId = datos.ultimoId;
+    for (const datosEstudiante of datos.estudiantes) {
+      super.guardarEstudiante(new Estudiante(datosEstudiante));
+    }
+    for (const datosSolicitud of datos.solicitudes) {
+      super.guardar(new Solicitud(datosSolicitud));
+    }
+  }
+
+  private leerArchivo(): ArchivoDeDatos {
     try {
-      const contenido = fs.readFileSync(this.archivo, "utf-8");
-      const datos = JSON.parse(contenido) as ArchivoDeDatos;
-      this.ultimoId = datos.ultimoId;
-      for (const d of datos.estudiantes)
-        super.guardarEstudiante(new Estudiante(d));
-      for (const d of datos.solicitudes) super.guardar(new Solicitud(d));
-    } catch {
-      // Si el archivo todavía no existe, se empieza sin datos.
+      return JSON.parse(fs.readFileSync(this.archivo, "utf-8"));
+    } catch (error) {
+      throw new ErrorDePersistencia(
+        `no se pudo leer el archivo ${this.archivo}`,
+        { cause: error },
+      );
     }
   }
 
