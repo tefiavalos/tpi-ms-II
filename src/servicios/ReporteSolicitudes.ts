@@ -4,6 +4,9 @@ import type { Solicitud } from "../dominio/Solicitud";
 import type { Estado } from "../dominio/tipos";
 import type { LectorSolicitudes } from "../repositorio/RepositorioSolicitudes";
 
+/** Una solicitud abierta se considera demorada si supera estos días. */
+const DIAS_PARA_DEMORA = 7;
+
 /**
  * Arma el reporte de solicitudes de un período. Solo necesita leer
  * solicitudes, por eso depende de LectorSolicitudes y no del repositorio
@@ -76,7 +79,8 @@ function lineasDemoradas(
 ): string[] {
   const demoradas = solicitudes.filter(
     (solicitud) =>
-      !solicitud.estaCerrada() && solicitud.diasAbierta(fechaCorte) > 7,
+      !solicitud.estaCerrada() &&
+      solicitud.diasAbierta(fechaCorte) > DIAS_PARA_DEMORA,
   );
   const lineas = demoradas.map(
     (solicitud) =>
@@ -84,7 +88,7 @@ function lineasDemoradas(
       `${solicitud.tipo} | ${solicitud.diasAbierta(fechaCorte)} dias`,
   );
   return [
-    `Solicitudes demoradas (mas de 7 dias abiertas): ${demoradas.length}`,
+    `Solicitudes demoradas (mas de ${DIAS_PARA_DEMORA} dias abiertas): ${demoradas.length}`,
     ...lineas,
   ];
 }
