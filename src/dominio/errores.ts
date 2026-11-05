@@ -16,3 +16,10 @@ export class NoEncontrado extends ErrorDeSolicitud {}
 
 /** La operación no se puede hacer en el estado actual de la solicitud. */
 export class OperacionNoPermitida extends ErrorDeSolicitud {}
+
+/**
+ * Falla al leer los datos guardados. No es un error del usuario: no se
+ * muestra como mensaje común, se deja propagar para no seguir trabajando
+ * con datos incompletos.
+ */
+export class ErrorDePersistencia extends Error {}

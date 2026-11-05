@@ -1,9 +1,10 @@
 import { after, describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { ErrorDePersistencia } from "../../src/dominio/errores";
 import { Estudiante } from "../../src/dominio/Estudiante";
 import { Solicitud } from "../../src/dominio/Solicitud";
 import { RepositorioEnMemoria } from "../../src/repositorio/RepositorioEnMemoria";
@@ -95,5 +96,18 @@ describe("RepositorioJson", () => {
     // Assert
     assert.equal(segundo.listar().length, 1);
     assert.equal(segundo.siguienteId(), 2);
+  });
+
+  it("si el archivo está dañado avisa y no lo pisa", () => {
+    // Arrange
+    const archivo = archivoNuevo();
+    writeFileSync(archivo, "{ esto no es JSON");
+
+    // Act
+    const abrir = () => new RepositorioJson(archivo);
+
+    // Assert
+    assert.throws(abrir, ErrorDePersistencia);
+    assert.equal(readFileSync(archivo, "utf-8"), "{ esto no es JSON");
   });
 });
