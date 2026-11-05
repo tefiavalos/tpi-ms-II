@@ -1,3 +1,4 @@
+import { DatoInvalido } from "./errores";
 import { formatearFecha } from "./fechas";
 
 /**
@@ -9,6 +10,9 @@ export class RangoFechas {
   readonly hasta: string;
 
   constructor(desde: string, hasta: string) {
+    if (desde > hasta) {
+      throw new DatoInvalido("el rango de fechas es invalido");
+    }
     this.desde = desde;
     this.hasta = hasta;
   }

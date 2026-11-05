@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
 import { diasEntre, formatearFecha } from "../../src/dominio/fechas";
+import { DatoInvalido } from "../../src/dominio/errores";
 import { RangoFechas } from "../../src/dominio/RangoFechas";
 
 describe("fechas", () => {
@@ -30,5 +31,12 @@ describe("RangoFechas", () => {
 
   it("se muestra con formato dd/mm/aaaa", () => {
     assert.equal(octubre.toString(), "01/10/2026 al 31/10/2026");
+  });
+
+  it("no permite un rango con 'desde' posterior a 'hasta'", () => {
+    assert.throws(
+      () => new RangoFechas("2026-10-31", "2026-10-01"),
+      DatoInvalido,
+    );
   });
 });
