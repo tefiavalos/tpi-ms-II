@@ -1,12 +1,12 @@
 $ npm run metricas
-Función                                                       Líneas  Complejidad  Parámetros
-src/GestorSolicitudes.ts:14 Constructor                            4            1           1
-src/GestorSolicitudes.ts:19 Method 'cargar'                        8            2           0
-src/GestorSolicitudes.ts:28 Method 'guardar'                       4            1           0
-src/GestorSolicitudes.ts:33 Method 'registrarSolicitud'           55           15           7
-src/GestorSolicitudes.ts:89 Method 'actualizarEmail'              18            6           2
-src/GestorSolicitudes.ts:108 Method 'asignarResponsable'          27           12           1
-src/GestorSolicitudes.ts:136 Method 'cambiarEstado'               29           15           3
-src/GestorSolicitudes.ts:166 Method 'buscar'                      18           13           5
-src/GestorSolicitudes.ts:185 Method 'calcularDias'                 6            2           2
-src/GestorSolicitudes.ts:192 Method 'generarReporte'              48           17           3
+Función                                                                 Líneas  Complejidad  Parámetros
+src/GestorSolicitudes.ts:14 Constructor                                      4            1           1
+src/GestorSolicitudes.ts:19 Method 'cargar'                                  8            2           0
+src/GestorSolicitudes.ts:28 Method 'guardar'                                 4            1           0
+src/GestorSolicitudes.ts:33 Method 'registrarSolicitud'                     55           15           7
+src/GestorSolicitudes.ts:89 Method 'actualizarEmail'                        18            6           2
+src/GestorSolicitudes.ts:108 Method 'asignarResponsable'                    27           12           1
+src/GestorSolicitudes.ts:136 Method 'cambiarEstado'                         29           15           3
+src/GestorSolicitudes.ts:166 Method 'buscar'                                18           13           5
+src/GestorSolicitudes.ts:185 Method 'calcularDias'                           6            2           2
+src/GestorSolicitudes.ts:192 Method 'generarReporte'                        48           17           3

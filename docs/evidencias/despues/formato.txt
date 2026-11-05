@@ -1,0 +1,3 @@
+$ npm run format:check
+Checking formatting...
+All matched files use Prettier code style!

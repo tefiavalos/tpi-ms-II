@@ -1,0 +1,2 @@
+$ diff docs/evidencias/antes/demo.txt docs/evidencias/despues/demo.txt
+(sin diferencias: la salida es idéntica)

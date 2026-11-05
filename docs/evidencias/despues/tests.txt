@@ -1,0 +1,125 @@
+$ npm test
+▶ Caracterización del comportamiento externo
+  ✔ la salida por consola es igual a la de la versión inicial (0.955078ms)
+  ✔ el archivo de datos es igual al de la versión inicial (1.516916ms)
+✔ Caracterización del comportamiento externo (3.60985ms)
+▶ mensajes de consola
+  ✔ arma el mensaje de registro (1.007537ms)
+  ✔ arma el listado de una búsqueda (0.297011ms)
+  ✔ muestra los errores esperados como 'Error: ...' (0.712121ms)
+  ✔ no oculta los errores inesperados (0.544758ms)
+✔ mensajes de consola (5.316542ms)
+▶ Estudiante
+  ✔ rechaza un legajo que no tiene 5 caracteres (1.672031ms)
+  ✔ rechaza un email sin @ (1.626385ms)
+  ✔ cambia el email si es válido (0.276171ms)
+  ✔ si el email nuevo es inválido conserva el anterior (0.159478ms)
+✔ Estudiante (5.170359ms)
+▶ Solicitud
+  ✔ no pasa a 'en curso' si no tiene responsable (2.719859ms)
+  ✔ pasa a 'en curso' cuando tiene responsable (0.226082ms)
+  ✔ al resolverse guarda la fecha de cierre (0.111974ms)
+  ✔ no permite volver de 'resuelta' a 'en curso' (0.143651ms)
+  ✔ no permite asignar responsable a una solicitud cerrada (0.110196ms)
+  ✔ si está abierta cuenta los días hasta la fecha de corte (0.188657ms)
+  ✔ si está cerrada cuenta los días hasta el cierre (0.125449ms)
+  ✔ aDatos devuelve los mismos datos con los que se creó (1.578033ms)
+✔ Solicitud (6.382591ms)
+▶ fechas
+  ✔ formatea una fecha ISO como dd/mm/aaaa (1.47278ms)
+  ✔ calcula los días entre dos fechas (1.709333ms)
+✔ fechas (4.770729ms)
+▶ RangoFechas
+  ✔ incluye las fechas de los extremos (0.327587ms)
+  ✔ excluye las fechas de afuera (0.178664ms)
+  ✔ se muestra con formato dd/mm/aaaa (0.195081ms)
+✔ RangoFechas (1.042003ms)
+▶ reglas por tipo de solicitud
+  ✔ asigna la prioridad base de cada tipo (1.448165ms)
+  ✔ si es urgente sube la prioridad un nivel (1.750815ms)
+  ✔ asigna el área responsable según el tipo (0.295306ms)
+  ✔ reconoce solo los tipos definidos (0.262036ms)
+✔ reglas por tipo de solicitud (5.427556ms)
+▶ reglas de cambio de estado
+  ✔ permite los pasos del circuito (0.350291ms)
+  ✔ no permite saltear pasos ni volver atrás (0.23817ms)
+  ✔ resuelta y rechazada son estados finales (0.199184ms)
+✔ reglas de cambio de estado (1.005965ms)
+▶ Contrato del repositorio: en memoria
+  ✔ genera ids correlativos desde 1 (1.218333ms)
+  ✔ guarda y encuentra una solicitud por id (0.365601ms)
+  ✔ guardar dos veces la misma solicitud no la duplica (0.164896ms)
+  ✔ guarda y encuentra estudiantes por legajo (0.513368ms)
+✔ Contrato del repositorio: en memoria (3.991861ms)
+▶ Contrato del repositorio: JSON
+  ✔ genera ids correlativos desde 1 (0.600009ms)
+  ✔ guarda y encuentra una solicitud por id (0.493656ms)
+  ✔ guardar dos veces la misma solicitud no la duplica (0.515844ms)
+  ✔ guarda y encuentra estudiantes por legajo (0.394208ms)
+✔ Contrato del repositorio: JSON (2.37455ms)
+▶ RepositorioJson
+  ✔ conserva los datos al volver a abrir el archivo (0.567048ms)
+✔ RepositorioJson (0.699502ms)
+▶ ReporteSolicitudes
+  ✔ cuenta por estado y por tipo solo las solicitudes del período (1.462646ms)
+  ✔ sin solicitudes cerradas muestra 'sin datos' en el promedio (0.324282ms)
+  ✔ promedia los días hasta el cierre de las cerradas (0.269136ms)
+  ✔ lista como demoradas las abiertas con más de 7 días (0.17482ms)
+✔ ReporteSolicitudes (4.753778ms)
+▶ ServicioSolicitudes
+  ▶ registrarSolicitud
+    ✔ registra la solicitud pendiente, con id y prioridad (2.277386ms)
+    ✔ registra al estudiante una sola vez (0.36501ms)
+    ✔ rechaza cada dato inválido sin guardar nada (0.741772ms)
+  ✔ registrarSolicitud (4.339144ms)
+  ▶ asignarResponsable y cambiarEstado
+    ✔ asigna el responsable del área que corresponde al tipo (0.541526ms)
+    ✔ guarda la solicitud una vez al cambiar el estado (mock) (2.213821ms)
+    ✔ si el cambio no está permitido no guarda nada (mock) (2.876325ms)
+    ✔ informa cuando la solicitud no existe (0.238827ms)
+  ✔ asignarResponsable y cambiarEstado (6.319904ms)
+  ▶ actualizarEmail
+    ✔ actualiza el email de un estudiante existente (0.306635ms)
+    ✔ informa cuando el estudiante no existe (0.154458ms)
+  ✔ actualizarEmail (0.672526ms)
+  ▶ buscar
+    ✔ sin criterios devuelve todas (0.425333ms)
+    ✔ combina tipo y rango de fechas (1.819651ms)
+    ✔ filtra por prioridad y estado (0.262827ms)
+  ✔ buscar (2.711866ms)
+✔ ServicioSolicitudes (14.778493ms)
+ℹ tests 55
+ℹ suites 17
+ℹ pass 55
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1053.086943
+ℹ start of coverage report
+ℹ ---------------------------------------------------------------------------
+ℹ file                       | line % | branch % | funcs % | uncovered lines
+ℹ ---------------------------------------------------------------------------
+ℹ dist                       |        |          |         | 
+ℹ  src                       |        |          |         | 
+ℹ   consola                  |        |          |         | 
+ℹ    mensajes.js             | 100.00 |   100.00 |  100.00 | 
+ℹ   dominio                  |        |          |         | 
+ℹ    errores.js              | 100.00 |   100.00 |  100.00 | 
+ℹ    Estudiante.js           | 100.00 |   100.00 |  100.00 | 
+ℹ    fechas.js               | 100.00 |   100.00 |  100.00 | 
+ℹ    RangoFechas.js          | 100.00 |   100.00 |  100.00 | 
+ℹ    reglas.js               | 100.00 |   100.00 |  100.00 | 
+ℹ    responsables.js         |  87.50 |    75.00 |  100.00 | 13-14
+ℹ    Solicitud.js            | 100.00 |   100.00 |  100.00 | 
+ℹ    validaciones.js         | 100.00 |   100.00 |  100.00 | 
+ℹ   repositorio              |        |          |         | 
+ℹ    RepositorioEnMemoria.js | 100.00 |   100.00 |  100.00 | 
+ℹ    RepositorioJson.js      |  92.77 |    78.57 |   82.35 | 10-11 16 21-23
+ℹ   servicios                |        |          |         | 
+ℹ    ReporteSolicitudes.js   | 100.00 |   100.00 |  100.00 | 
+ℹ    ServicioSolicitudes.js  | 100.00 |   100.00 |  100.00 | 
+ℹ ---------------------------------------------------------------------------
+ℹ all files                  |  98.61 |    95.42 |   96.70 | 
+ℹ ---------------------------------------------------------------------------
+ℹ end of coverage report

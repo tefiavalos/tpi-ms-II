@@ -1,0 +1,65 @@
+$ npm run metricas
+Función                                                                 Líneas  Complejidad  Parámetros
+consola/mensajes.ts:15 Function 'ejecutar'                                   8            3           1
+consola/mensajes.ts:24 Function 'mensajeRegistro'                            3            1           1
+consola/mensajes.ts:28 Function 'mensajeAsignacion'                          4            1           1
+consola/mensajes.ts:33 Function 'mensajeCambioDeEstado'                      3            1           1
+consola/mensajes.ts:37 Function 'mensajeEmailActualizado'                    3            1           1
+consola/mensajes.ts:41 Function 'listadoDeBusqueda'                          9            1           1
+src/demo.ts:28 Function 'registrar'                                          3            1           1
+dominio/Estudiante.ts:16 Constructor                                         7            1           1
+dominio/Estudiante.ts:24 Getter 'email'                                      3            1           0
+dominio/Estudiante.ts:28 Method 'cambiarEmail'                               4            1           1
+dominio/Estudiante.ts:33 Method 'aDatos'                                     3            1           0
+dominio/RangoFechas.ts:11 Constructor                                        4            1           2
+dominio/RangoFechas.ts:16 Method 'contiene'                                  3            2           1
+dominio/RangoFechas.ts:20 Method 'toString'                                  3            1           0
+dominio/Solicitud.ts:35 Constructor                                         11            1           1
+dominio/Solicitud.ts:47 Getter 'estado'                                      3            1           0
+dominio/Solicitud.ts:51 Getter 'responsable'                                 3            1           0
+dominio/Solicitud.ts:55 Getter 'fechaCierre'                                 3            1           0
+dominio/Solicitud.ts:59 Method 'estaCerrada'                                 3            1           0
+dominio/Solicitud.ts:63 Method 'asignarResponsable'                          8            2           1
+dominio/Solicitud.ts:72 Method 'cambiarEstado'                              14            5           2
+dominio/Solicitud.ts:88 Method 'diasAbierta'                                 3            2           1
+dominio/Solicitud.ts:92 Method 'aDatos'                                     13            1           0
+dominio/errores.ts:5 Constructor                                             4            1           1
+dominio/fechas.ts:6 Function 'formatearFecha'                                4            1           1
+dominio/fechas.ts:12 Function 'diasEntre'                                    4            1           2
+dominio/reglas.ts:33 Function 'esTipoValido'                                 3            1           1
+dominio/reglas.ts:38 Function 'prioridadInicial'                             7            2           2
+dominio/reglas.ts:47 Function 'areaResponsable'                              3            1           1
+dominio/reglas.ts:52 Function 'transicionPermitida'                          3            1           2
+dominio/reglas.ts:57 Function 'esEstadoFinal'                                3            1           1
+dominio/responsables.ts:16 Function 'responsableDelArea'                     7            2           1
+dominio/validaciones.ts:6 Function 'validarLegajo'                           5            2           1
+dominio/validaciones.ts:12 Function 'validarEmail'                           5            3           1
+dominio/validaciones.ts:18 Function 'validarDescripcion'                     5            2           1
+repositorio/RepositorioEnMemoria.ts:11 Method 'listar'                       3            1           0
+repositorio/RepositorioEnMemoria.ts:15 Method 'siguienteId'                  4            1           0
+repositorio/RepositorioEnMemoria.ts:20 Method 'buscarPorId'                  3            1           1
+repositorio/RepositorioEnMemoria.ts:24 Method 'guardar'                      3            1           1
+repositorio/RepositorioEnMemoria.ts:28 Method 'buscarEstudiante'             3            1           1
+repositorio/RepositorioEnMemoria.ts:32 Method 'guardarEstudiante'            3            1           1
+repositorio/RepositorioJson.ts:20 Constructor                                5            1           1
+repositorio/RepositorioJson.ts:26 Method 'guardar'                           4            1           1
+repositorio/RepositorioJson.ts:31 Method 'guardarEstudiante'                 4            1           1
+repositorio/RepositorioJson.ts:36 Method 'cargar'                           11            4           0
+repositorio/RepositorioJson.ts:49 Method 'escribirArchivo'                   8            1           0
+servicios/ReporteSolicitudes.ts:15 Constructor                               3            1           1
+servicios/ReporteSolicitudes.ts:19 Method 'generar'                         15            1           2
+servicios/ReporteSolicitudes.ts:36 Function 'lineaPorEstado'                 8            1           1
+servicios/ReporteSolicitudes.ts:45 Function 'lineasPorTipo'                 11            3           1
+servicios/ReporteSolicitudes.ts:57 Function 'lineaPromedioDeCierre'         15            2           2
+servicios/ReporteSolicitudes.ts:73 Function 'lineasDemoradas'               18            1           2
+servicios/ServicioSolicitudes.ts:48 Constructor                              3            1           1
+servicios/ServicioSolicitudes.ts:52 Method 'registrarSolicitud'             17            1           1
+servicios/ServicioSolicitudes.ts:70 Method 'asignarResponsable'              7            1           1
+servicios/ServicioSolicitudes.ts:78 Method 'cambiarEstado'                   6            1           3
+servicios/ServicioSolicitudes.ts:85 Method 'actualizarEmail'                10            2           2
+servicios/ServicioSolicitudes.ts:96 Method 'buscar'                          5            1           1
+servicios/ServicioSolicitudes.ts:103 Method 'validarNuevaSolicitud'          9            2           1
+servicios/ServicioSolicitudes.ts:113 Method 'registrarEstudianteSiNoExiste'     8            2           1
+servicios/ServicioSolicitudes.ts:122 Method 'obtenerSolicitud'               7            2           1
+servicios/ServicioSolicitudes.ts:131 Function 'coincide'                     3            2           2
+servicios/ServicioSolicitudes.ts:135 Function 'cumpleFiltro'                11            6           2
