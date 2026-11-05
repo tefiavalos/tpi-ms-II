@@ -1,0 +1,75 @@
+classDiagram
+  direction TB
+  class demo
+  class mensajes {
+    <<consola>>
+    +ejecutar(accion)
+    +mensajeRegistro(solicitud)
+    +listadoDeBusqueda(resultados)
+  }
+  class ServicioSolicitudes {
+    -repositorio: RepositorioSolicitudes
+    +registrarSolicitud(datos: NuevaSolicitud) Solicitud
+    +asignarResponsable(id) Solicitud
+    +cambiarEstado(id, nuevoEstado, fecha) Solicitud
+    +actualizarEmail(legajo, nuevoEmail) Estudiante
+    +buscar(filtro: FiltroSolicitudes) Solicitud[]
+  }
+  class ReporteSolicitudes {
+    -lector: LectorSolicitudes
+    +generar(periodo: RangoFechas, fechaCorte) string
+  }
+  class LectorSolicitudes {
+    <<interface>>
+    +listar() Solicitud[]
+  }
+  class RepositorioSolicitudes {
+    <<interface>>
+    +siguienteId() number
+    +buscarPorId(id) Solicitud
+    +guardar(solicitud)
+    +buscarEstudiante(legajo) Estudiante
+    +guardarEstudiante(estudiante)
+  }
+  class RepositorioEnMemoria
+  class RepositorioJson {
+    -archivo: string
+  }
+  class Solicitud {
+    +estado: Estado
+    +responsable: string
+    +asignarResponsable(nombre)
+    +cambiarEstado(nuevoEstado, fecha)
+    +diasAbierta(fechaCorte) number
+    +estaCerrada() boolean
+  }
+  class Estudiante {
+    +legajo: string
+    +email: string
+    +cambiarEmail(nuevoEmail)
+  }
+  class RangoFechas {
+    +desde: string
+    +hasta: string
+    +contiene(fecha) boolean
+  }
+  class reglas {
+    <<tabla de reglas>>
+    +prioridadInicial(tipo, urgente)
+    +areaResponsable(tipo)
+    +transicionPermitida(actual, nuevo)
+  }
+  demo ..> ServicioSolicitudes
+  demo ..> ReporteSolicitudes
+  demo ..> mensajes
+  demo ..> RepositorioJson : crea e inyecta
+  RepositorioSolicitudes --|> LectorSolicitudes
+  RepositorioEnMemoria ..|> RepositorioSolicitudes
+  RepositorioJson --|> RepositorioEnMemoria
+  ServicioSolicitudes --> RepositorioSolicitudes
+  ReporteSolicitudes --> LectorSolicitudes
+  ServicioSolicitudes ..> Solicitud
+  ServicioSolicitudes ..> Estudiante
+  ServicioSolicitudes ..> reglas
+  Solicitud ..> reglas
+  ReporteSolicitudes ..> RangoFechas

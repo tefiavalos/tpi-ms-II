@@ -10,17 +10,17 @@
 
 ## Casos de prueba
 
-| Archivo                                       | Casos | Qué verifica                                                                                                            |
-| --------------------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------- |
-| `tests/caracterizacion.test.ts`               | 2     | Salida por consola y archivo de datos iguales a la versión inicial.                                                     |
-| `tests/dominio/reglas.test.ts`                | 7     | Prioridad por tipo, urgencia, área, tipos válidos y circuito de estados.                                                |
-| `tests/dominio/Solicitud.test.ts`             | 8     | Cambios de estado permitidos y prohibidos, responsable obligatorio, fecha de cierre, días abierta.                      |
-| `tests/dominio/Estudiante.test.ts`            | 4     | Validación de legajo y email; un email inválido no reemplaza al anterior.                                               |
-| `tests/dominio/fechas.test.ts`                | 5     | Formato de fecha, días entre fechas y límites de `RangoFechas`.                                                         |
-| `tests/servicios/ServicioSolicitudes.test.ts` | 12    | Registro, datos inválidos sin guardar nada, asignación, cambio de estado (con mock del repositorio), email y búsquedas. |
-| `tests/servicios/ReporteSolicitudes.test.ts`  | 4     | Conteos, promedio de cierre, demoradas y período (con stub del repositorio).                                            |
-| `tests/repositorio/contrato.test.ts`          | 5     | Las mismas pruebas sobre `RepositorioEnMemoria` y `RepositorioJson` (LSP) y persistencia del archivo.                   |
-| `tests/consola/mensajes.test.ts`              | 4     | Textos que ve el usuario; los errores inesperados no se ocultan.                                                        |
+| Archivo                                       | Casos | Qué verifica                                                                                                                         |
+| --------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/caracterizacion.test.ts`               | 2     | Salida por consola y archivo de datos iguales a la versión inicial.                                                                  |
+| `tests/dominio/reglas.test.ts`                | 8     | Prioridad por tipo, urgencia (incluida la prioridad alta), área, tipos válidos y circuito de estados.                                |
+| `tests/dominio/Solicitud.test.ts`             | 8     | Cambios de estado permitidos y prohibidos, responsable obligatorio, fecha de cierre, días abierta.                                   |
+| `tests/dominio/Estudiante.test.ts`            | 4     | Validación de legajo y email; un email inválido no reemplaza al anterior.                                                            |
+| `tests/dominio/fechas.test.ts`                | 6     | Formato de fecha, días entre fechas, límites de `RangoFechas` y rango inválido.                                                      |
+| `tests/servicios/ServicioSolicitudes.test.ts` | 12    | Registro, datos inválidos sin guardar nada, asignación, cambio de estado (con mock del repositorio), email y búsquedas.              |
+| `tests/servicios/ReporteSolicitudes.test.ts`  | 4     | Conteos, promedio de cierre, demoradas y período (con stub del repositorio).                                                         |
+| `tests/repositorio/contrato.test.ts`          | 10    | Las 4 pruebas de contrato se ejecutan sobre `RepositorioEnMemoria` y `RepositorioJson` (LSP); además, persistencia y archivo dañado. |
+| `tests/consola/mensajes.test.ts`              | 4     | Textos que ve el usuario; los errores inesperados no se ocultan.                                                                     |
 
 ## Dobles de prueba
 
@@ -30,10 +30,10 @@
 ## Resultado
 
 ```
-ℹ tests 55
-ℹ pass 55
+ℹ tests 58
+ℹ pass 58
 ℹ fail 0
-all files | line 98.61% | branch 95.42% | funcs 96.70%
+all files | line 98.33% | branch 95.54% | funcs 96.74%
 ```
 
 El detalle completo está en `docs/evidencias/despues/tests.txt`.

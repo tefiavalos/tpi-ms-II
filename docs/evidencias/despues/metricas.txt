@@ -11,9 +11,9 @@ dominio/Estudiante.ts:16 Constructor                                         7  
 dominio/Estudiante.ts:24 Getter 'email'                                      3            1           0
 dominio/Estudiante.ts:28 Method 'cambiarEmail'                               4            1           1
 dominio/Estudiante.ts:33 Method 'aDatos'                                     3            1           0
-dominio/RangoFechas.ts:11 Constructor                                        4            1           2
-dominio/RangoFechas.ts:16 Method 'contiene'                                  3            2           1
-dominio/RangoFechas.ts:20 Method 'toString'                                  3            1           0
+dominio/RangoFechas.ts:12 Constructor                                        7            2           2
+dominio/RangoFechas.ts:20 Method 'contiene'                                  3            2           1
+dominio/RangoFechas.ts:24 Method 'toString'                                  3            1           0
 dominio/Solicitud.ts:35 Constructor                                         11            1           1
 dominio/Solicitud.ts:47 Getter 'estado'                                      3            1           0
 dominio/Solicitud.ts:51 Getter 'responsable'                                 3            1           0
@@ -41,17 +41,18 @@ repositorio/RepositorioEnMemoria.ts:20 Method 'buscarPorId'                  3  
 repositorio/RepositorioEnMemoria.ts:24 Method 'guardar'                      3            1           1
 repositorio/RepositorioEnMemoria.ts:28 Method 'buscarEstudiante'             3            1           1
 repositorio/RepositorioEnMemoria.ts:32 Method 'guardarEstudiante'            3            1           1
-repositorio/RepositorioJson.ts:20 Constructor                                5            1           1
-repositorio/RepositorioJson.ts:26 Method 'guardar'                           4            1           1
-repositorio/RepositorioJson.ts:31 Method 'guardarEstudiante'                 4            1           1
-repositorio/RepositorioJson.ts:36 Method 'cargar'                           11            4           0
-repositorio/RepositorioJson.ts:49 Method 'escribirArchivo'                   8            1           0
-servicios/ReporteSolicitudes.ts:15 Constructor                               3            1           1
-servicios/ReporteSolicitudes.ts:19 Method 'generar'                         15            1           2
-servicios/ReporteSolicitudes.ts:36 Function 'lineaPorEstado'                 8            1           1
-servicios/ReporteSolicitudes.ts:45 Function 'lineasPorTipo'                 11            3           1
-servicios/ReporteSolicitudes.ts:57 Function 'lineaPromedioDeCierre'         15            2           2
-servicios/ReporteSolicitudes.ts:73 Function 'lineasDemoradas'               18            1           2
+repositorio/RepositorioJson.ts:21 Constructor                                5            1           1
+repositorio/RepositorioJson.ts:27 Method 'guardar'                           4            1           1
+repositorio/RepositorioJson.ts:32 Method 'guardarEstudiante'                 4            1           1
+repositorio/RepositorioJson.ts:37 Method 'cargar'                           11            4           0
+repositorio/RepositorioJson.ts:50 Method 'leerArchivo'                      10            2           0
+repositorio/RepositorioJson.ts:61 Method 'escribirArchivo'                   8            1           0
+servicios/ReporteSolicitudes.ts:18 Constructor                               3            1           1
+servicios/ReporteSolicitudes.ts:22 Method 'generar'                         15            1           2
+servicios/ReporteSolicitudes.ts:39 Function 'lineaPorEstado'                 8            1           1
+servicios/ReporteSolicitudes.ts:48 Function 'lineasPorTipo'                 11            3           1
+servicios/ReporteSolicitudes.ts:60 Function 'lineaPromedioDeCierre'         15            2           2
+servicios/ReporteSolicitudes.ts:76 Function 'lineasDemoradas'               19            1           2
 servicios/ServicioSolicitudes.ts:48 Constructor                              3            1           1
 servicios/ServicioSolicitudes.ts:52 Method 'registrarSolicitud'             17            1           1
 servicios/ServicioSolicitudes.ts:70 Method 'asignarResponsable'              7            1           1

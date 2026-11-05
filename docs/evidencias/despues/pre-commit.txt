@@ -1,0 +1,143 @@
+$ git commit  (ejecución del pre-commit hook)
+==============================================
+ Pre-commit: controles de calidad
+==============================================
+
+[1/3] Formatter (Prettier)...
+Checking formatting...
+All matched files use Prettier code style!
+
+[2/3] Linter (ESLint) y compilación (tsc)...
+ESLint: sin errores.
+tsc: compilación sin errores.
+
+[3/3] Tests y cobertura...
+▶ Caracterización del comportamiento externo
+  ✔ la salida por consola es igual a la de la versión inicial (1.017861ms)
+  ✔ el archivo de datos es igual al de la versión inicial (1.729297ms)
+✔ Caracterización del comportamiento externo (3.780981ms)
+▶ mensajes de consola
+  ✔ arma el mensaje de registro (0.910712ms)
+  ✔ arma el listado de una búsqueda (0.298101ms)
+  ✔ muestra los errores esperados como 'Error: ...' (0.606901ms)
+  ✔ no oculta los errores inesperados (0.450962ms)
+✔ mensajes de consola (4.683362ms)
+▶ Estudiante
+  ✔ rechaza un legajo que no tiene 5 caracteres (1.290768ms)
+  ✔ rechaza un email sin @ (1.574166ms)
+  ✔ cambia el email si es válido (0.170302ms)
+  ✔ si el email nuevo es inválido conserva el anterior (0.157547ms)
+✔ Estudiante (4.188799ms)
+▶ Solicitud
+  ✔ no pasa a 'en curso' si no tiene responsable (3.034197ms)
+  ✔ pasa a 'en curso' cuando tiene responsable (0.175414ms)
+  ✔ al resolverse guarda la fecha de cierre (0.123397ms)
+  ✔ no permite volver de 'resuelta' a 'en curso' (0.179242ms)
+  ✔ no permite asignar responsable a una solicitud cerrada (0.102895ms)
+  ✔ si está abierta cuenta los días hasta la fecha de corte (0.122736ms)
+  ✔ si está cerrada cuenta los días hasta el cierre (0.082306ms)
+  ✔ aDatos devuelve los mismos datos con los que se creó (1.56586ms)
+✔ Solicitud (6.498677ms)
+▶ fechas
+  ✔ formatea una fecha ISO como dd/mm/aaaa (2.799736ms)
+  ✔ calcula los días entre dos fechas (0.321539ms)
+✔ fechas (4.705406ms)
+▶ RangoFechas
+  ✔ incluye las fechas de los extremos (0.345234ms)
+  ✔ excluye las fechas de afuera (0.207208ms)
+  ✔ se muestra con formato dd/mm/aaaa (0.167416ms)
+  ✔ no permite un rango con 'desde' posterior a 'hasta' (0.580004ms)
+✔ RangoFechas (1.588906ms)
+▶ reglas por tipo de solicitud
+  ✔ asigna la prioridad base de cada tipo (0.772816ms)
+  ✔ si es urgente sube la prioridad un nivel (1.283947ms)
+  ✔ si es urgente y ya tiene prioridad alta, queda en alta (0.154841ms)
+  ✔ asigna el área responsable según el tipo (0.116006ms)
+  ✔ reconoce solo los tipos definidos (0.11756ms)
+✔ reglas por tipo de solicitud (3.545011ms)
+▶ reglas de cambio de estado
+  ✔ permite los pasos del circuito (0.12588ms)
+  ✔ no permite saltear pasos ni volver atrás (0.126332ms)
+  ✔ resuelta y rechazada son estados finales (0.093392ms)
+✔ reglas de cambio de estado (0.466318ms)
+▶ Contrato del repositorio: en memoria
+  ✔ genera ids correlativos desde 1 (0.789459ms)
+  ✔ guarda y encuentra una solicitud por id (0.28896ms)
+  ✔ guardar dos veces la misma solicitud no la duplica (0.096551ms)
+  ✔ guarda y encuentra estudiantes por legajo (0.335749ms)
+✔ Contrato del repositorio: en memoria (2.541908ms)
+▶ Contrato del repositorio: JSON
+  ✔ genera ids correlativos desde 1 (0.278071ms)
+  ✔ guarda y encuentra una solicitud por id (0.439112ms)
+  ✔ guardar dos veces la misma solicitud no la duplica (0.460291ms)
+  ✔ guarda y encuentra estudiantes por legajo (0.322655ms)
+✔ Contrato del repositorio: JSON (1.703051ms)
+▶ RepositorioJson
+  ✔ conserva los datos al volver a abrir el archivo (0.444088ms)
+  ✔ si el archivo está dañado avisa y no lo pisa (0.765217ms)
+✔ RepositorioJson (2.569689ms)
+▶ ReporteSolicitudes
+  ✔ cuenta por estado y por tipo solo las solicitudes del período (1.445354ms)
+  ✔ sin solicitudes cerradas muestra 'sin datos' en el promedio (0.284409ms)
+  ✔ promedia los días hasta el cierre de las cerradas (0.256828ms)
+  ✔ lista como demoradas las abiertas con más de 7 días (0.17114ms)
+✔ ReporteSolicitudes (4.424809ms)
+▶ ServicioSolicitudes
+  ▶ registrarSolicitud
+    ✔ registra la solicitud pendiente, con id y prioridad (1.272586ms)
+    ✔ registra al estudiante una sola vez (0.289382ms)
+    ✔ rechaza cada dato inválido sin guardar nada (0.535115ms)
+  ✔ registrarSolicitud (2.88611ms)
+  ▶ asignarResponsable y cambiarEstado
+    ✔ asigna el responsable del área que corresponde al tipo (0.434145ms)
+    ✔ guarda la solicitud una vez al cambiar el estado (mock) (0.692525ms)
+    ✔ si el cambio no está permitido no guarda nada (mock) (1.209027ms)
+    ✔ informa cuando la solicitud no existe (0.19845ms)
+  ✔ asignarResponsable y cambiarEstado (2.724498ms)
+  ▶ actualizarEmail
+    ✔ actualiza el email de un estudiante existente (0.269787ms)
+    ✔ informa cuando el estudiante no existe (0.137224ms)
+  ✔ actualizarEmail (0.580388ms)
+  ▶ buscar
+    ✔ sin criterios devuelve todas (0.265956ms)
+    ✔ combina tipo y rango de fechas (1.600034ms)
+    ✔ filtra por prioridad y estado (0.279855ms)
+  ✔ buscar (2.293234ms)
+✔ ServicioSolicitudes (9.126893ms)
+ℹ tests 58
+ℹ suites 17
+ℹ pass 58
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 903.705658
+ℹ start of coverage report
+ℹ --------------------------------------------------------------------------------
+ℹ file                       | line % | branch % | funcs % | uncovered lines
+ℹ --------------------------------------------------------------------------------
+ℹ dist                       |        |          |         | 
+ℹ  src                       |        |          |         | 
+ℹ   consola                  |        |          |         | 
+ℹ    mensajes.js             | 100.00 |   100.00 |  100.00 | 
+ℹ   dominio                  |        |          |         | 
+ℹ    errores.js              | 100.00 |   100.00 |  100.00 | 
+ℹ    Estudiante.js           | 100.00 |   100.00 |  100.00 | 
+ℹ    fechas.js               | 100.00 |   100.00 |  100.00 | 
+ℹ    RangoFechas.js          | 100.00 |   100.00 |  100.00 | 
+ℹ    reglas.js               | 100.00 |   100.00 |  100.00 | 
+ℹ    responsables.js         |  87.50 |    75.00 |  100.00 | 13-14
+ℹ    Solicitud.js            | 100.00 |   100.00 |  100.00 | 
+ℹ    validaciones.js         | 100.00 |   100.00 |  100.00 | 
+ℹ   repositorio              |        |          |         | 
+ℹ    RepositorioEnMemoria.js | 100.00 |   100.00 |  100.00 | 
+ℹ    RepositorioJson.js      |  91.21 |    80.65 |   83.33 | 10-11 16 21-23 68-69
+ℹ   servicios                |        |          |         | 
+ℹ    ReporteSolicitudes.js   | 100.00 |   100.00 |  100.00 | 
+ℹ    ServicioSolicitudes.js  | 100.00 |   100.00 |  100.00 | 
+ℹ --------------------------------------------------------------------------------
+ℹ all files                  |  98.33 |    95.54 |   96.74 | 
+ℹ --------------------------------------------------------------------------------
+ℹ end of coverage report
+
+OK: formato, linter, compilación y tests en verde.

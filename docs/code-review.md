@@ -6,23 +6,23 @@ Revisora: Andrea Ayala. Código revisado: la versión refactorizada, escrita por
 
 ## Checklist técnico
 
-| Categoría              | Pregunta                                                           | Resultado                                         |
-| ---------------------- | ------------------------------------------------------------------ | ------------------------------------------------- |
-| Lógica y funcionalidad | ¿Hace lo que tiene que hacer? (prueba de caracterización en verde) | Cumple                                            |
-| Lógica y funcionalidad | ¿Cubre los casos de borde?                                         | Observado: CR-02, CR-04                           |
-| Legibilidad            | ¿Los nombres son descriptivos?                                     | Cumple                                            |
-| Legibilidad            | ¿Hay números o textos "mágicos" sin explicar?                      | Observado: CR-01                                  |
-| Legibilidad            | ¿Un desarrollador nuevo lo entiende sin preguntar?                 | Cumple (comentarios en clases e interfaces)       |
-| Diseño y arquitectura  | ¿Cada clase tiene una sola responsabilidad (SRP)?                  | Cumple                                            |
-| Diseño y arquitectura  | ¿Se puede extender sin modificar lo que funciona (OCP)?            | Cumple (tabla de reglas)                          |
-| Diseño y arquitectura  | ¿Depende de abstracciones (DIP)?                                   | Cumple (repositorio por interfaz)                 |
-| Diseño y arquitectura  | ¿Hay código duplicado (DRY)?                                       | Cumple                                            |
-| Manejo de errores      | ¿Hay errores silenciados o catch vacíos?                           | Observado: CR-03                                  |
-| Manejo de errores      | ¿Se usan excepciones en lugar de códigos de error?                 | Cumple                                            |
-| Estilo y compilación   | ¿Pasa Prettier, ESLint y compila sin advertencias?                 | Observado: CR-05                                  |
-| Pruebas                | ¿Los cambios tienen pruebas y la cobertura supera el 80%?          | Cumple (98,6% de líneas)                          |
-| Seguridad              | ¿Hay datos personales reales o sensibles en el repositorio?        | Cumple: datos ficticios y `data/` en `.gitignore` |
-| Rendimiento            | ¿Hay recorridos innecesarios?                                      | Cumple para el volumen actual (ver CR-06)         |
+| Categoría              | Pregunta                                                           | Resultado                                          |
+| ---------------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
+| Lógica y funcionalidad | ¿Hace lo que tiene que hacer? (prueba de caracterización en verde) | Cumple                                             |
+| Lógica y funcionalidad | ¿Cubre los casos de borde?                                         | Observado: CR-02, CR-04                            |
+| Legibilidad            | ¿Los nombres son descriptivos?                                     | Cumple                                             |
+| Legibilidad            | ¿Hay números o textos "mágicos" sin explicar?                      | Observado: CR-01                                   |
+| Legibilidad            | ¿Un desarrollador nuevo lo entiende sin preguntar?                 | Cumple (comentarios en clases e interfaces)        |
+| Diseño y arquitectura  | ¿Cada clase tiene una sola responsabilidad (SRP)?                  | Cumple                                             |
+| Diseño y arquitectura  | ¿Se puede extender sin modificar lo que funciona (OCP)?            | Cumple (tabla de reglas)                           |
+| Diseño y arquitectura  | ¿Depende de abstracciones (DIP)?                                   | Cumple (repositorio por interfaz)                  |
+| Diseño y arquitectura  | ¿Hay código duplicado (DRY)?                                       | Cumple                                             |
+| Manejo de errores      | ¿Hay errores silenciados o catch vacíos?                           | Observado: CR-03                                   |
+| Manejo de errores      | ¿Se usan excepciones en lugar de códigos de error?                 | Cumple                                             |
+| Estilo y compilación   | ¿Pasa Prettier, ESLint y compila sin advertencias?                 | Observado: CR-05                                   |
+| Pruebas                | ¿Los cambios tienen pruebas y la cobertura supera el 80%?          | Cumple (98,6% de líneas al momento de la revisión) |
+| Seguridad              | ¿Hay datos personales reales o sensibles en el repositorio?        | Cumple: datos ficticios y `data/` en `.gitignore`  |
+| Rendimiento            | ¿Hay recorridos innecesarios?                                      | Cumple para el volumen actual (ver CR-06)          |
 
 ## Observaciones y feedback
 

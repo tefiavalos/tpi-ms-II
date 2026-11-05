@@ -1,0 +1,28 @@
+classDiagram
+  direction LR
+  class GestorSolicitudes {
+    +lst: any[]
+    +estudiantes: any[]
+    +responsables: any[]
+    +archivo: string
+    +ultimoId: number
+    +cargar()
+    +guardar()
+    +registrarSolicitud(legajo, nombre, email, tipo, descripcion, fecha, urgente) number
+    +actualizarEmail(legajo, email) boolean
+    +asignarResponsable(id) boolean
+    +cambiarEstado(id, nuevo, fecha) boolean
+    +buscar(tipo, estado, prioridad, desde, hasta) any[]
+    +calcularDias(s, hoy) number
+    +generarReporte(hoy, desde, hasta) string
+  }
+  class fs {
+    <<módulo de Node>>
+  }
+  class console {
+    <<módulo de Node>>
+  }
+  class demo
+  demo ..> GestorSolicitudes : usa
+  GestorSolicitudes ..> fs : lee y escribe el archivo
+  GestorSolicitudes ..> console : muestra mensajes
